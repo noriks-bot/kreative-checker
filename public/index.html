@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreative Checker | NORIKS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --bg-card: #181b23;
+            --bg-hover: #1f232d;
+            --border: #2a2f3a;
+            --text: #f4f4f5;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --orange: #f97316;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--green-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+        
+        .btn {
+            padding: 9px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: #3f4555;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .stat-card.success {
+            border-left: 3px solid var(--green);
+        }
+        
+        .stat-card.fail {
+            border-left: 3px solid var(--red);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .stat-card.success .stat-value { color: var(--green); }
+        .stat-card.fail .stat-value { color: var(--red); }
+        
+        /* Breakdown */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .breakdown-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .breakdown-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .breakdown-items {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .breakdown-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .breakdown-data strong {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .breakdown-data span {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Table */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .table-header span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .table-scroll {
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th {
+            background: #14171f;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        tr.today td {
+            background: rgba(59, 130, 246, 0.08);
+        }
+        
+        tr.future td {
+            opacity: 0.35;
+        }
+        
+        .date-cell {
+            font-weight: 500;
+        }
+        
+        .day-label {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.success {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        
+        .badge.fail {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+        
+        .badge.pending {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+        }
+        
+        .data-cell {
+            color: var(--text-secondary);
+        }
+        
+        .status-cell {
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .status-cell.success { color: var(--green); }
+        .status-cell.fail { color: var(--red); }
+        .status-cell.pending { color: var(--text-muted); }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .breakdown-grid { grid-template-columns: 1fr; }
+            .container { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <div>
+                    <h1>Kreative Checker</h1>
+                    <p>NORIKS Produkcija</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    Povezano
+                </div>
+                <button class="btn" onclick="loadStats(true)">↻ Osveži</button>
+            </div>
+        </header>
+        
+        <main id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Nalagam...</p>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            Cilj: 10 kreativ na dan · Osveži se vsako uro
+        </footer>
+    </div>
+    
+    <script>
+        const DAYS = ['Ned', 'Pon', 'Tor', 'Sre', 'Čet', 'Pet', 'Sob'];
+        const START_DATE = '2026-02-09';
+
+        function fmt(d) {
+            const [y,m,day] = d.split('-');
+            return { date: `${day}.${m}.${y}`, day: DAYS[new Date(d).getDay()] };
+        }
+
+        function dates() {
+            const r = [], s = new Date(START_DATE), e = new Date('2026-12-31');
+            for (let d = new Date(s); d <= e; d.setDate(d.getDate()+1)) r.push(d.toISOString().split('T')[0]);
+            return r;
+        }
+
+        async function loadStats(refresh = false) {
+            const c = document.getElementById('content');
+            c.innerHTML = '<div class="loading"><div class="spinner"></div><p>Nalagam...</p></div>';
+
+            try {
+                const res = await fetch(refresh ? 'api/stats?refresh=true' : 'api/stats');
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+
+                const map = Object.fromEntries(data.stats.map(s => [s.date, s]));
+                const today = new Date().toISOString().split('T')[0];
+                
+                const all = dates().map(d => ({
+                    date: d,
+                    isToday: d === today,
+                    isFuture: d > today,
+                    ...(map[d] || { count: 0, success: false, types: {}, products: {} })
+                }));
+
+                const past = all.filter(s => !s.isFuture);
+                const succ = past.filter(s => s.success).length;
+                const fail = past.filter(s => !s.success).length;
+                const total = past.reduce((a, s) => a + s.count, 0);
+                const t = data.totals || { types: {}, products: {} };
+
+                c.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Kreativ</div>
+                            <div class="stat-value">${total}</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Success Dni</div>
+                            <div class="stat-value">${succ}</div>
+                        </div>
+                        <div class="stat-card fail">
+                            <div class="stat-label">Kiks Dni</div>
+                            <div class="stat-value">${fail}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Skupaj Dni</div>
+                            <div class="stat-value">${past.length}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="breakdown-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">VIDEO / SLIKA</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🎬</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.format?.VIDEO || 0}</strong>
+                                        <span>Video</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">📸</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.format?.SLIKA || 0}</strong>
+                                        <span>Slika</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">MAJICE / BOKSERCE / STARTER</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">👕</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.MAJICE || 0}</strong>
+                                        <span>Majice</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🩲</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.BOKSERCE || 0}</strong>
+                                        <span>Bokserce</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">📦</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.STARTER || 0}</strong>
+                                        <span>Starter</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">NEW / MIX</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">✨</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.version?.NEW || 0}</strong>
+                                        <span>New</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🔀</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.version?.MIX || 0}</strong>
+                                        <span>Mix</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2>Dnevni Pregled</h2>
+                            <span>09.02.2026 → 31.12.2026</span>
+                        </div>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th>Kreativ</th>
+                                        <th>🎬 Video</th>
+                                        <th>📸 Slika</th>
+                                        <th>👕 Majice</th>
+                                        <th>🩲 Bokserce</th>
+                                        <th>📦 Starter</th>
+                                        <th>✨ New</th>
+                                        <th>🔀 Mix</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${all.map(d => {
+                                        const f = fmt(d.date);
+                                        const cls = d.isFuture ? 'future' : '';
+                                        const fm = d.format || {}, pr = d.products || {}, vr = d.version || {};
+                                        const badge = d.isFuture ? 'pending' : (d.success ? 'success' : 'fail');
+                                        const status = d.isFuture ? '⏳ Čakamo' : (d.success ? '✓ Success' : '✗ Kiks');
+                                        return `<tr class="${cls}">
+                                            <td class="date-cell">${f.date}<span class="day-label">${f.day}</span></td>
+                                            <td><span class="badge ${badge}">${d.isFuture ? '—' : d.count+'/10'}</span></td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (fm.VIDEO||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (fm.SLIKA||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.MAJICE||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.BOKSERCE||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.STARTER||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (vr.NEW||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (vr.MIX||0)}</td>
+                                            <td class="status-cell ${badge}">${status}</td>
+                                        </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+            } catch (err) {
+                c.innerHTML = `<div class="loading"><p style="color:var(--red);">Napaka: ${err.message}</p><br><button class="btn" onclick="loadStats(true)">Poskusi znova</button></div>`;
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
