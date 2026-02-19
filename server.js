@@ -229,8 +229,9 @@ app.get('/api/stats', async (req, res) => {
         const allIds = new Set();
         creativeFiles.forEach(f => { const id = extractId(f.name); if (id) allIds.add(id); });
 
-        // Build stats array - count = unique IDs
+        // Build stats array - count = unique IDs, filter only 2026 dates
         const stats = Object.entries(dateGroups)
+            .filter(([date]) => date.startsWith('2026'))
             .map(([date, data]) => ({
                 date,
                 count: data.ids.size,
