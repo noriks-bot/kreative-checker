@@ -121,10 +121,12 @@
         .badge.green { background: rgba(34,197,94,0.12); color: #22c55e; }
         .badge.red { background: rgba(239,68,68,0.12); color: #ef4444; }
         .badge.orange { background: rgba(251,146,60,0.12); color: #fb923c; }
+        .badge.gray { background: rgba(107,114,128,0.12); color: #6b7280; }
         
         .status.green { color: #22c55e; }
         .status.red { color: #ef4444; }
         .status.orange { color: #fb923c; }
+        .status.gray { color: #6b7280; }
         
         tr.weekend td { opacity: 0.35; }
         tr.today td { background: #1a1e26; }
@@ -182,9 +184,10 @@ async function load() {
                 </div>
             </div>
             <div class="cat-card">
-                <div class="title">New / Mix</div>
+                <div class="title">New / Pirat / Mix</div>
                 <div class="cat-items">
                     <div class="cat-item"><div class="cat-icon">✨</div><div><div class="cat-num">${t.version?.NEW||0}</div><div class="cat-name">New</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🏴‍☠️</div><div><div class="cat-num">${t.version?.PIRAT||0}</div><div class="cat-name">Pirat</div></div></div>
                     <div class="cat-item"><div class="cat-icon">🔀</div><div><div class="cat-num">${t.version?.MIX||0}</div><div class="cat-name">Mix</div></div></div>
                 </div>
             </div>
@@ -196,7 +199,7 @@ async function load() {
             </div>
             <table>
                 <thead><tr>
-                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🔀 Mix</th><th>Status</th>
+                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🏴‍☠️ Pirat</th><th>🔀 Mix</th><th>Status</th>
                 </tr></thead>
                 <tbody>${data.stats.map(s => {
                     const we = isWeekend(s.date);
@@ -205,17 +208,18 @@ async function load() {
                     let badgeClass = s.success ? 'green' : 'red';
                     let statusText = s.success ? '✓ Success' : '✗ Kiks';
                     if (today) { badgeClass = 'orange'; statusText = '⏳ V teku'; }
-                    if (we) { badgeClass = 'red'; statusText = '✗ Kiks'; }
+                    if (we) { badgeClass = 'gray'; statusText = '—'; }
                     return `<tr class="${we?'weekend':''} ${today?'today':''}">
                         <td class="date-cell">${fmt(s.date)}<span class="day">${day}</span></td>
-                        <td><span class="badge ${badgeClass}">${s.count}/10</span></td>
-                        <td>${s.format?.VIDEO||0}</td>
-                        <td>${s.format?.SLIKA||0}</td>
-                        <td>${s.products?.MAJICE||0}</td>
-                        <td>${s.products?.BOKSERCE||0}</td>
-                        <td>${s.products?.STARTER||0}</td>
-                        <td>${s.version?.NEW||0}</td>
-                        <td>${s.version?.MIX||0}</td>
+                        <td><span class="badge ${badgeClass}">${we?'—':s.count+'/10'}</span></td>
+                        <td>${we?'—':(s.format?.VIDEO||0)}</td>
+                        <td>${we?'—':(s.format?.SLIKA||0)}</td>
+                        <td>${we?'—':(s.products?.MAJICE||0)}</td>
+                        <td>${we?'—':(s.products?.BOKSERCE||0)}</td>
+                        <td>${we?'—':(s.products?.STARTER||0)}</td>
+                        <td>${we?'—':(s.version?.NEW||0)}</td>
+                        <td>${we?'—':(s.version?.PIRAT||0)}</td>
+                        <td>${we?'—':(s.version?.MIX||0)}</td>
                         <td><span class="status ${badgeClass}">${statusText}</span></td>
                     </tr>`;
                 }).join('')}</tbody>

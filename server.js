@@ -201,14 +201,14 @@ app.get('/api/stats', async (req, res) => {
 
         // Group by date with unique ID counting and categories
         const dateGroups = {};
-        const totals = { VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, MIX: 0 };
+        const totals = { VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, PIRAT: 0, MIX: 0 };
 
         creativeFiles.forEach(file => {
             const date = getDate(file);
             if (!date) return;
             
             if (!dateGroups[date]) {
-                dateGroups[date] = { ids: new Set(), files: [], VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, MIX: 0 };
+                dateGroups[date] = { ids: new Set(), files: [], VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, PIRAT: 0, MIX: 0 };
             }
             
             const id = extractId(file.name);
@@ -222,6 +222,7 @@ app.get('/api/stats', async (req, res) => {
             if (cat.isBokserce) { dateGroups[date].BOKSERCE++; totals.BOKSERCE++; }
             if (cat.isStarter) { dateGroups[date].STARTER++; totals.STARTER++; }
             if (cat.isNew) { dateGroups[date].NEW++; totals.NEW++; }
+            if (cat.isPirat) { dateGroups[date].PIRAT++; totals.PIRAT++; }
             if (cat.isMix) { dateGroups[date].MIX++; totals.MIX++; }
         });
 
@@ -238,7 +239,7 @@ app.get('/api/stats', async (req, res) => {
                 success: data.ids.size >= 10,
                 format: { VIDEO: data.VIDEO, SLIKA: data.SLIKA },
                 products: { MAJICE: data.MAJICE, BOKSERCE: data.BOKSERCE, STARTER: data.STARTER },
-                version: { NEW: data.NEW, MIX: data.MIX },
+                version: { NEW: data.NEW, PIRAT: data.PIRAT, MIX: data.MIX },
                 files: data.files
             }))
             .sort((a, b) => b.date.localeCompare(a.date));
@@ -248,7 +249,7 @@ app.get('/api/stats', async (req, res) => {
             isDemo: false,
             totalCreatives: allIds.size,
             totalDays: stats.length,
-            totals: { format: { VIDEO: totals.VIDEO, SLIKA: totals.SLIKA }, products: { MAJICE: totals.MAJICE, BOKSERCE: totals.BOKSERCE, STARTER: totals.STARTER }, version: { NEW: totals.NEW, MIX: totals.MIX } },
+            totals: { format: { VIDEO: totals.VIDEO, SLIKA: totals.SLIKA }, products: { MAJICE: totals.MAJICE, BOKSERCE: totals.BOKSERCE, STARTER: totals.STARTER }, version: { NEW: totals.NEW, PIRAT: totals.PIRAT, MIX: totals.MIX } },
             stats
         });
 
