@@ -229,11 +229,11 @@ app.get('/api/stats', async (req, res) => {
         const allIds = new Set();
         creativeFiles.forEach(f => { const id = extractId(f.name); if (id) allIds.add(id); });
 
-        // Build stats array - count = total files (Video + Slika)
+        // Build stats array - count = unique IDs
         const stats = Object.entries(dateGroups)
             .map(([date, data]) => ({
                 date,
-                count: data.VIDEO + data.SLIKA,
+                count: data.ids.size,
                 success: data.ids.size >= 10,
                 format: { VIDEO: data.VIDEO, SLIKA: data.SLIKA },
                 products: { MAJICE: data.MAJICE, BOKSERCE: data.BOKSERCE, STARTER: data.STARTER },
@@ -245,7 +245,7 @@ app.get('/api/stats', async (req, res) => {
         res.json({
             success: true,
             isDemo: false,
-            totalCreatives: creativeFiles.length,
+            totalCreatives: allIds.size,
             totalDays: stats.length,
             totals: { format: { VIDEO: totals.VIDEO, SLIKA: totals.SLIKA }, products: { MAJICE: totals.MAJICE, BOKSERCE: totals.BOKSERCE, STARTER: totals.STARTER }, version: { NEW: totals.NEW, MIX: totals.MIX } },
             stats

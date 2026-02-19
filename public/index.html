@@ -120,11 +120,14 @@
         }
         .badge.green { background: rgba(34,197,94,0.12); color: #22c55e; }
         .badge.red { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .badge.orange { background: rgba(251,146,60,0.12); color: #fb923c; }
         
         .status.green { color: #22c55e; }
         .status.red { color: #ef4444; }
+        .status.orange { color: #fb923c; }
         
         tr.weekend td { opacity: 0.35; }
+        tr.today td { background: #1a1e26; }
         
         .loading { text-align: center; padding: 60px; color: #6b7280; }
     </style>
@@ -135,6 +138,7 @@
 </div>
 <script>
 const DAYS = ['Ned','Pon','Tor','Sre','Čet','Pet','Sob'];
+const TODAY = new Date().toISOString().split('T')[0];
 
 async function load() {
     try {
@@ -143,8 +147,13 @@ async function load() {
         if (!data.success) throw new Error(data.error);
         
         const isWeekend = d => [0,6].includes(new Date(d).getDay());
+        const isToday = d => d === TODAY;
         let successDays = 0, kiksDays = 0;
-        data.stats.forEach(s => { if (!isWeekend(s.date)) s.success ? successDays++ : kiksDays++; });
+        data.stats.forEach(s => { 
+            if (!isWeekend(s.date) && !isToday(s.date)) {
+                s.success ? successDays++ : kiksDays++;
+            }
+        });
         
         const t = data.totals || {};
         const fmt = d => { const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
@@ -191,10 +200,15 @@ async function load() {
                 </tr></thead>
                 <tbody>${data.stats.map(s => {
                     const we = isWeekend(s.date);
+                    const today = isToday(s.date);
                     const day = DAYS[new Date(s.date).getDay()];
-                    return `<tr class="${we?'weekend':''}">
+                    let badgeClass = s.success ? 'green' : 'red';
+                    let statusText = s.success ? '✓ Success' : '✗ Kiks';
+                    if (today) { badgeClass = 'orange'; statusText = '⏳ V teku'; }
+                    if (we) { badgeClass = 'red'; statusText = '✗ Kiks'; }
+                    return `<tr class="${we?'weekend':''} ${today?'today':''}">
                         <td class="date-cell">${fmt(s.date)}<span class="day">${day}</span></td>
-                        <td><span class="badge ${s.success?'green':'red'}">${s.count}/10</span></td>
+                        <td><span class="badge ${badgeClass}">${s.count}/10</span></td>
                         <td>${s.format?.VIDEO||0}</td>
                         <td>${s.format?.SLIKA||0}</td>
                         <td>${s.products?.MAJICE||0}</td>
@@ -202,7 +216,7 @@ async function load() {
                         <td>${s.products?.STARTER||0}</td>
                         <td>${s.version?.NEW||0}</td>
                         <td>${s.version?.MIX||0}</td>
-                        <td><span class="status ${s.success?'green':'red'}">${s.success?'✓ Success':'✗ Kiks'}</span></td>
+                        <td><span class="status ${badgeClass}">${statusText}</span></td>
                     </tr>`;
                 }).join('')}</tbody>
             </table>
