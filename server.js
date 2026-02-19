@@ -199,16 +199,34 @@ app.get('/api/stats', async (req, res) => {
             return file.server_modified ? file.server_modified.split('T')[0] : null;
         }
 
-        // Group by date with unique ID counting and categories
+        // Group by date with unique ID counting for ALL categories
         const dateGroups = {};
-        const totals = { VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, PIRAT: 0, MIX: 0 };
+        const totalVideoIds = new Set();
+        const totalSlikaIds = new Set();
+        const totalMajiceIds = new Set();
+        const totalBokserceIds = new Set();
+        const totalStarterIds = new Set();
+        const totalNewIds = new Set();
+        const totalPiratIds = new Set();
+        const totalMixIds = new Set();
 
         creativeFiles.forEach(file => {
             const date = getDate(file);
             if (!date) return;
             
             if (!dateGroups[date]) {
-                dateGroups[date] = { ids: new Set(), files: [], VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, PIRAT: 0, MIX: 0 };
+                dateGroups[date] = { 
+                    ids: new Set(), 
+                    videoIds: new Set(),
+                    slikaIds: new Set(),
+                    majiceIds: new Set(),
+                    bokserceIds: new Set(),
+                    starterIds: new Set(),
+                    newIds: new Set(),
+                    piratIds: new Set(),
+                    mixIds: new Set(),
+                    files: []
+                };
             }
             
             const id = extractId(file.name);
@@ -216,15 +234,30 @@ app.get('/api/stats', async (req, res) => {
             dateGroups[date].files.push(file.name);
             
             const cat = categorize(file.name);
-            if (cat.isVideo) { dateGroups[date].VIDEO++; totals.VIDEO++; }
-            if (cat.isSlika) { dateGroups[date].SLIKA++; totals.SLIKA++; }
-            if (cat.isMajice) { dateGroups[date].MAJICE++; totals.MAJICE++; }
-            if (cat.isBokserce) { dateGroups[date].BOKSERCE++; totals.BOKSERCE++; }
-            if (cat.isStarter) { dateGroups[date].STARTER++; totals.STARTER++; }
-            if (cat.isNew) { dateGroups[date].NEW++; totals.NEW++; }
-            if (cat.isPirat) { dateGroups[date].PIRAT++; totals.PIRAT++; }
-            if (cat.isMix) { dateGroups[date].MIX++; totals.MIX++; }
+            
+            // Count ALL categories by unique ID only
+            if (id) {
+                if (cat.isVideo) { dateGroups[date].videoIds.add(id); totalVideoIds.add(id); }
+                if (cat.isSlika) { dateGroups[date].slikaIds.add(id); totalSlikaIds.add(id); }
+                if (cat.isMajice) { dateGroups[date].majiceIds.add(id); totalMajiceIds.add(id); }
+                if (cat.isBokserce) { dateGroups[date].bokserceIds.add(id); totalBokserceIds.add(id); }
+                if (cat.isStarter) { dateGroups[date].starterIds.add(id); totalStarterIds.add(id); }
+                if (cat.isNew) { dateGroups[date].newIds.add(id); totalNewIds.add(id); }
+                if (cat.isPirat) { dateGroups[date].piratIds.add(id); totalPiratIds.add(id); }
+                if (cat.isMix) { dateGroups[date].mixIds.add(id); totalMixIds.add(id); }
+            }
         });
+        
+        const totals = {
+            VIDEO: totalVideoIds.size,
+            SLIKA: totalSlikaIds.size,
+            MAJICE: totalMajiceIds.size,
+            BOKSERCE: totalBokserceIds.size,
+            STARTER: totalStarterIds.size,
+            NEW: totalNewIds.size,
+            PIRAT: totalPiratIds.size,
+            MIX: totalMixIds.size
+        };
 
         // Calculate total unique IDs
         const allIds = new Set();
@@ -237,9 +270,20 @@ app.get('/api/stats', async (req, res) => {
                 date,
                 count: data.ids.size,
                 success: data.ids.size >= 10,
-                format: { VIDEO: data.VIDEO, SLIKA: data.SLIKA },
-                products: { MAJICE: data.MAJICE, BOKSERCE: data.BOKSERCE, STARTER: data.STARTER },
-                version: { NEW: data.NEW, PIRAT: data.PIRAT, MIX: data.MIX },
+                format: { 
+                    VIDEO: data.videoIds.size, 
+                    SLIKA: data.slikaIds.size 
+                },
+                products: { 
+                    MAJICE: data.majiceIds.size, 
+                    BOKSERCE: data.bokserceIds.size, 
+                    STARTER: data.starterIds.size 
+                },
+                version: { 
+                    NEW: data.newIds.size, 
+                    PIRAT: data.piratIds.size, 
+                    MIX: data.mixIds.size 
+                },
                 files: data.files
             }))
             .sort((a, b) => a.date.localeCompare(b.date));

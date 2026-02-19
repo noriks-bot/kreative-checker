@@ -12,112 +12,79 @@
             background: #0d0f12; 
             color: #e5e7eb; 
             min-height: 100vh; 
-            padding: 16px;
         }
-        .container { max-width: 1280px; margin: 0 auto; }
         
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid #252a35;
+            padding: 20px 32px;
         }
-        .stat-card {
-            background: #151921;
-            border: 1px solid #252a35;
-            border-radius: 6px;
-            padding: 14px 18px;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .stat-card .label {
-            font-size: 10px;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        .stat-card .value.green { color: #22c55e; }
-        .stat-card .value.red { color: #ef4444; }
-        
-        .cat-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .cat-card {
-            background: #151921;
-            border: 1px solid #252a35;
-            border-radius: 6px;
-            padding: 14px 18px;
-        }
-        .cat-card .title {
-            font-size: 10px;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 12px;
-        }
-        .cat-items { display: flex; gap: 20px; }
-        .cat-item { display: flex; align-items: center; gap: 10px; }
-        .cat-icon {
-            width: 34px;
-            height: 34px;
-            background: #1e232c;
-            border-radius: 6px;
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 24px;
         }
-        .cat-num { font-size: 22px; font-weight: 700; }
-        .cat-name { font-size: 9px; color: #6b7280; text-transform: uppercase; }
+        .header-title { font-size: 24px; font-weight: 700; color: #fff; }
+        .header-subtitle { font-size: 13px; color: #6b7280; margin-top: 2px; }
+        .header-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #6b7280; }
+        .refresh-btn {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            border: none; color: #fff; padding: 10px 20px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
         
-        .table-card {
-            background: #151921;
-            border: 1px solid #252a35;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 18px;
-            border-bottom: 1px solid #252a35;
-        }
-        .table-header h2 { font-size: 13px; font-weight: 600; }
-        .table-header .range { font-size: 11px; color: #6b7280; }
+        .container { padding: 24px 32px; }
+        
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .stat-card { background: #151921; border: 1px solid #252a35; border-radius: 8px; padding: 16px 20px; }
+        .stat-card .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .stat-card .value { font-size: 32px; font-weight: 700; }
+        .stat-card .value.green { color: #22c55e; }
+        .stat-card .value.red { color: #ef4444; }
+        
+        .cat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+        .cat-card { background: #151921; border: 1px solid #252a35; border-radius: 8px; padding: 16px 20px; }
+        .cat-card .title { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 14px; }
+        .cat-items { display: flex; gap: 24px; }
+        .cat-item { display: flex; align-items: center; gap: 12px; }
+        .cat-icon { width: 40px; height: 40px; background: #1e232c; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .cat-num { font-size: 24px; font-weight: 700; }
+        .cat-name { font-size: 10px; color: #6b7280; text-transform: uppercase; }
+        
+        .table-card { background: #151921; border: 1px solid #252a35; border-radius: 8px; overflow: hidden; }
+        .table-scroll { max-height: 600px; overflow-y: auto; }
+        .table-scroll::-webkit-scrollbar { width: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #1e232c; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #3b4252; border-radius: 4px; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #252a35; }
+        .table-header h2 { font-size: 14px; font-weight: 600; }
+        .table-header .range { font-size: 12px; color: #6b7280; }
         
         table { width: 100%; border-collapse: collapse; }
-        th {
-            text-align: left;
-            padding: 10px 14px;
-            font-size: 10px;
-            color: #6b7280;
-            text-transform: uppercase;
-            font-weight: 600;
-            border-bottom: 1px solid #252a35;
-        }
-        td {
-            padding: 10px 14px;
-            font-size: 12px;
-            border-bottom: 1px solid #1e232c;
-        }
+        th { text-align: left; padding: 12px 16px; font-size: 10px; color: #6b7280; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid #252a35; }
+        td { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid #1e232c; }
         tr:hover td { background: #1a1e26; }
+        .date-cell .day { color: #6b7280; margin-left: 8px; }
         
-        .date-cell .day { color: #6b7280; margin-left: 6px; }
-        
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
         .badge.green { background: rgba(34,197,94,0.12); color: #22c55e; }
         .badge.red { background: rgba(239,68,68,0.12); color: #ef4444; }
         .badge.orange { background: rgba(251,146,60,0.12); color: #fb923c; }
@@ -128,19 +95,121 @@
         .status.orange { color: #fb923c; }
         .status.gray { color: #6b7280; }
         
-        tr.weekend td { opacity: 0.35; }
+        tr.weekend td { background: #0f1115; color: #4b5563; }
+        tr.weekend:hover td { background: #12151a; }
+        tr.future td { color: #4b5563; }
         tr.today td { background: #1a1e26; }
         
         .loading { text-align: center; padding: 60px; color: #6b7280; }
+        
+        .krono-card { background: #151921; border: 1px solid #252a35; border-radius: 8px; overflow: hidden; margin-top: 12px; }
+        .krono-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #252a35; }
+        .krono-header h2 { font-size: 14px; font-weight: 600; }
+        .krono-header .info { font-size: 12px; color: #6b7280; }
+        .krono-scroll { max-height: 500px; overflow-y: auto; }
+        .krono-scroll::-webkit-scrollbar { width: 8px; }
+        .krono-scroll::-webkit-scrollbar-track { background: #1e232c; }
+        .krono-scroll::-webkit-scrollbar-thumb { background: #3b4252; border-radius: 4px; }
+        .krono-date { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #1a1e26; border-bottom: 1px solid #252a35; font-weight: 600; }
+        .krono-date .day { color: #6b7280; font-weight: 400; margin-left: 8px; }
+        .krono-date .count { color: #6b7280; font-size: 13px; }
+        .krono-file { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid #1e232c; }
+        .krono-file:hover { background: #1a1e26; }
+        .krono-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; min-width: 70px; justify-content: center; }
+        .krono-badge.new { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .krono-badge.mix { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .krono-badge.pirat { background: rgba(139,92,246,0.15); color: #a78bfa; }
+        .krono-filename { font-size: 13px; color: #9ca3af; }
+        .krono-filename .local { color: #6b7280; font-size: 12px; }
+        .krono-footer { padding: 12px 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #252a35; }
     </style>
 </head>
 <body>
+<div class="header">
+    <div class="header-content">
+        <div class="header-left">
+            <div class="header-logo">🎨</div>
+            <div>
+                <div class="header-title">Kreative Checker</div>
+                <div class="header-subtitle">NORIKS Creative Tracking System</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="last-update"></span>
+            <button class="refresh-btn" onclick="load()">🔄 Osveži</button>
+        </div>
+    </div>
+</div>
 <div class="container">
     <div id="app"><div class="loading">Nalagam...</div></div>
 </div>
 <script>
 const DAYS = ['Ned','Pon','Tor','Sre','Čet','Pet','Sob'];
 const TODAY = new Date().toISOString().split('T')[0];
+const START_DATE = '2026-02-09';
+const END_DATE = '2026-12-31';
+
+function generateAllDates(start, end) {
+    const dates = [];
+    let current = new Date(start);
+    const endDate = new Date(end);
+    while (current <= endDate) {
+        dates.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 1);
+    }
+    return dates;
+}
+
+function isWeekend(d) { return [0,6].includes(new Date(d).getDay()); }
+function isToday(d) { return d === TODAY; }
+function isFuture(d) { return d > TODAY; }
+function fmt(d) { const [y,m,day] = d.split('-'); return day + '.' + m + '.' + y; }
+
+function getFileType(f) {
+    const u = f.toUpperCase();
+    if (u.includes('PIRAT')) return 'pirat';
+    if (u.includes('MIX')) return 'mix';
+    return 'new';
+}
+
+function isLocalized(f) {
+    return f.includes('_HR') || f.includes('_CZ') || f.includes('_PL') || f.includes('_SK') || f.includes('_HU') || f.includes('_GR') || f.includes('_IT');
+}
+
+function renderKrono(stats) {
+    const sorted = stats.filter(s => s.files && s.files.length > 0).sort((a,b) => b.date.localeCompare(a.date));
+    let html = '';
+    
+    for (const s of sorted) {
+        const day = DAYS[new Date(s.date).getDay()];
+        
+        // Group by unique ID
+        const seenIds = new Map();
+        for (const f of s.files) {
+            const m = f.match(/ID(\d+)/i);
+            if (m) {
+                const id = m[1];
+                if (!seenIds.has(id)) {
+                    seenIds.set(id, { file: f, localized: isLocalized(f) });
+                } else if (isLocalized(f)) {
+                    seenIds.get(id).localized = true;
+                }
+            }
+        }
+        
+        html += '<div class="krono-date"><span>' + fmt(s.date) + '<span class="day">' + day + '</span></span><span class="count">' + s.count + '/10</span></div>';
+        
+        for (const [id, info] of seenIds) {
+            const type = getFileType(info.file);
+            const icon = type === 'pirat' ? '🏴‍☠️' : type === 'mix' ? '🔀' : '✨';
+            const label = type.toUpperCase();
+            const localTag = info.localized ? ' <span class="local">(lokalizirano)</span>' : '';
+            html += '<div class="krono-file"><span class="krono-badge ' + type + '">' + icon + ' ' + label + '</span><span class="krono-filename">' + info.file + localTag + '</span></div>';
+        }
+    }
+    
+    return html;
+}
 
 async function load() {
     try {
@@ -148,88 +217,100 @@ async function load() {
         const data = await r.json();
         if (!data.success) throw new Error(data.error);
         
-        const isWeekend = d => [0,6].includes(new Date(d).getDay());
-        const isToday = d => d === TODAY;
+        document.getElementById('last-update').textContent = 'Posodobljeno: ' + new Date().toLocaleString('sl-SI');
+        
+        const statsMap = {};
+        data.stats.forEach(s => { statsMap[s.date] = s; });
+        
+        const allDates = generateAllDates(START_DATE, END_DATE);
+        
         let successDays = 0, kiksDays = 0;
-        data.stats.forEach(s => { 
-            if (!isWeekend(s.date) && !isToday(s.date)) {
-                s.success ? successDays++ : kiksDays++;
+        allDates.forEach(date => { 
+            const s = statsMap[date];
+            if (!isWeekend(date) && !isToday(date) && !isFuture(date)) {
+                if (s && s.count >= 10) successDays++;
+                else kiksDays++;
             }
         });
         
         const t = data.totals || {};
-        const fmt = d => { const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
+        const totalDays = allDates.filter(d => !isWeekend(d) && !isFuture(d) && !isToday(d)).length;
         
-        document.getElementById('app').innerHTML = `
-        <div class="stats-row">
-            <div class="stat-card"><div class="label">Total Kreativ</div><div class="value">${data.totalCreatives}</div></div>
-            <div class="stat-card"><div class="label">Success Dni</div><div class="value green">${successDays}</div></div>
-            <div class="stat-card"><div class="label">Kiks Dni</div><div class="value red">${kiksDays}</div></div>
-            <div class="stat-card"><div class="label">Skupaj Dni</div><div class="value">${data.totalDays}</div></div>
-        </div>
-        <div class="cat-row">
-            <div class="cat-card">
-                <div class="title">Video / Slika</div>
-                <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">🎬</div><div><div class="cat-num">${t.format?.VIDEO||0}</div><div class="cat-name">Video</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">📷</div><div><div class="cat-num">${t.format?.SLIKA||0}</div><div class="cat-name">Slika</div></div></div>
-                </div>
-            </div>
-            <div class="cat-card">
-                <div class="title">Majice / Bokserce / Starter</div>
-                <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">👕</div><div><div class="cat-num">${t.products?.MAJICE||0}</div><div class="cat-name">Majice</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🩳</div><div><div class="cat-num">${t.products?.BOKSERCE||0}</div><div class="cat-name">Bokserce</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🎁</div><div><div class="cat-num">${t.products?.STARTER||0}</div><div class="cat-name">Starter</div></div></div>
-                </div>
-            </div>
-            <div class="cat-card">
-                <div class="title">New / Mix / Pirat</div>
-                <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">✨</div><div><div class="cat-num">${t.version?.NEW||0}</div><div class="cat-name">New</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🔀</div><div><div class="cat-num">${t.version?.MIX||0}</div><div class="cat-name">Mix</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🏴‍☠️</div><div><div class="cat-num">${t.version?.PIRAT||0}</div><div class="cat-name">Pirat</div></div></div>
-                </div>
-            </div>
-        </div>
-        <div class="table-card">
-            <div class="table-header">
-                <h2>Dnevni Pregled</h2>
-                <span class="range">09.02.2026 → 31.12.2026</span>
-            </div>
-            <table>
-                <thead><tr>
-                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🔀 Mix</th><th>🏴‍☠️ Pirat</th><th>Status</th>
-                </tr></thead>
-                <tbody>${data.stats.map(s => {
-                    const we = isWeekend(s.date);
-                    const today = isToday(s.date);
-                    const day = DAYS[new Date(s.date).getDay()];
-                    let badgeClass = s.success ? 'green' : 'red';
-                    let statusText = s.success ? '✓ Success' : '✗ Kiks';
-                    if (today) { badgeClass = 'orange'; statusText = '⏳ V teku'; }
-                    if (we) { badgeClass = 'gray'; statusText = '—'; }
-                    return `<tr class="${we?'weekend':''} ${today?'today':''}">
-                        <td class="date-cell">${fmt(s.date)}<span class="day">${day}</span></td>
-                        <td><span class="badge ${badgeClass}">${we?'—':s.count+'/10'}</span></td>
-                        <td>${we?'—':(s.format?.VIDEO||0)}</td>
-                        <td>${we?'—':(s.format?.SLIKA||0)}</td>
-                        <td>${we?'—':(s.products?.MAJICE||0)}</td>
-                        <td>${we?'—':(s.products?.BOKSERCE||0)}</td>
-                        <td>${we?'—':(s.products?.STARTER||0)}</td>
-                        <td>${we?'—':(s.version?.NEW||0)}</td>
-                        <td>${we?'—':(s.version?.MIX||0)}</td>
-                        <td>${we?'—':(s.version?.PIRAT||0)}</td>
-                        <td><span class="status ${badgeClass}">${statusText}</span></td>
-                    </tr>`;
-                }).join('')}</tbody>
-            </table>
-        </div>`;
+        let tableRows = '';
+        for (const date of allDates) {
+            const s = statsMap[date] || { count: 0, format: {}, products: {}, version: {} };
+            const we = isWeekend(date);
+            const today = isToday(date);
+            const future = isFuture(date);
+            const day = DAYS[new Date(date).getDay()];
+            
+            let badgeClass, statusText;
+            if (we) { badgeClass = 'gray'; statusText = '—'; }
+            else if (future) { badgeClass = 'gray'; statusText = '⏳ Čaka'; }
+            else if (today) { badgeClass = 'orange'; statusText = '⏳ V teku'; }
+            else if (s.count >= 10) { badgeClass = 'green'; statusText = '✓ Success'; }
+            else { badgeClass = 'red'; statusText = '✗ Kiks'; }
+            
+            const rowClass = [we ? 'weekend' : '', today ? 'today' : '', future ? 'future' : ''].filter(Boolean).join(' ');
+            
+            tableRows += '<tr class="' + rowClass + '">' +
+                '<td class="date-cell">' + fmt(date) + '<span class="day">' + day + '</span></td>' +
+                '<td><span class="badge ' + badgeClass + '">' + (we ? '—' : s.count + '/10') + '</span></td>' +
+                '<td>' + (we ? '—' : (s.format?.VIDEO || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.format?.SLIKA || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.products?.MAJICE || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.products?.BOKSERCE || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.products?.STARTER || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.version?.NEW || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.version?.MIX || 0)) + '</td>' +
+                '<td>' + (we ? '—' : (s.version?.PIRAT || 0)) + '</td>' +
+                '<td><span class="status ' + badgeClass + '">' + statusText + '</span></td>' +
+                '</tr>';
+        }
+        
+        document.getElementById('app').innerHTML = 
+        '<div class="stats-row">' +
+            '<div class="stat-card"><div class="label">Total Kreativ</div><div class="value">' + data.totalCreatives + '</div></div>' +
+            '<div class="stat-card"><div class="label">Success Dni</div><div class="value green">' + successDays + '</div></div>' +
+            '<div class="stat-card"><div class="label">Kiks Dni</div><div class="value red">' + kiksDays + '</div></div>' +
+            '<div class="stat-card"><div class="label">Skupaj Dni</div><div class="value">' + totalDays + '</div></div>' +
+        '</div>' +
+        '<div class="cat-row">' +
+            '<div class="cat-card"><div class="title">Video / Slika</div><div class="cat-items">' +
+                '<div class="cat-item"><div class="cat-icon">🎬</div><div><div class="cat-num">' + (t.format?.VIDEO||0) + '</div><div class="cat-name">Video</div></div></div>' +
+                '<div class="cat-item"><div class="cat-icon">📷</div><div><div class="cat-num">' + (t.format?.SLIKA||0) + '</div><div class="cat-name">Slika</div></div></div>' +
+            '</div></div>' +
+            '<div class="cat-card"><div class="title">Majice / Bokserce / Starter</div><div class="cat-items">' +
+                '<div class="cat-item"><div class="cat-icon">👕</div><div><div class="cat-num">' + (t.products?.MAJICE||0) + '</div><div class="cat-name">Majice</div></div></div>' +
+                '<div class="cat-item"><div class="cat-icon">🩳</div><div><div class="cat-num">' + (t.products?.BOKSERCE||0) + '</div><div class="cat-name">Bokserce</div></div></div>' +
+                '<div class="cat-item"><div class="cat-icon">🎁</div><div><div class="cat-num">' + (t.products?.STARTER||0) + '</div><div class="cat-name">Starter</div></div></div>' +
+            '</div></div>' +
+            '<div class="cat-card"><div class="title">New / Mix / Pirat</div><div class="cat-items">' +
+                '<div class="cat-item"><div class="cat-icon">✨</div><div><div class="cat-num">' + (t.version?.NEW||0) + '</div><div class="cat-name">New</div></div></div>' +
+                '<div class="cat-item"><div class="cat-icon">🔀</div><div><div class="cat-num">' + (t.version?.MIX||0) + '</div><div class="cat-name">Mix</div></div></div>' +
+                '<div class="cat-item"><div class="cat-icon">🏴‍☠️</div><div><div class="cat-num">' + (t.version?.PIRAT||0) + '</div><div class="cat-name">Pirat</div></div></div>' +
+            '</div></div>' +
+        '</div>' +
+        '<div class="table-card">' +
+            '<div class="table-header"><h2>Dnevni Pregled</h2><span class="range">09.02.2026 → 31.12.2026</span></div>' +
+            '<div class="table-scroll"><table><thead><tr>' +
+                '<th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🔀 Mix</th><th>🏴‍☠️ Pirat</th><th>Status</th>' +
+            '</tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
+        '</div>' +
+        '<div class="krono-card">' +
+            '<div class="krono-header"><h2>📋 Kronološki Pregled Kreativ</h2><span class="info">Po datumu (najnovejši naprej) → NEW, MIX, PIRAT</span></div>' +
+            '<div class="krono-scroll">' + renderKrono(data.stats) + '</div>' +
+            '<div class="krono-footer">Cilj: 10 kreativ na dan · Osveži se vsako uro</div>' +
+        '</div>';
+        
     } catch(e) {
-        document.getElementById('app').innerHTML = `<div class="loading" style="color:#ef4444">Napaka: ${e.message}</div>`;
+        document.getElementById('app').innerHTML = '<div class="loading" style="color:#ef4444">Napaka: ' + e.message + '</div>';
     }
 }
 load();
+
+// Auto-refresh every hour (3600000ms)
+setInterval(load, 3600000);
 </script>
 </body>
 </html>
