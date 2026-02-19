@@ -5,77 +5,32 @@ const https = require('https');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Dropbox OAuth config
+// Dropbox OAuth (auto-refresh)
 const DROPBOX_APP_KEY = 'h7gx1yglwenhrz2';
 const DROPBOX_APP_SECRET = '3n4ebxqlqfehwkr';
 const DROPBOX_REFRESH_TOKEN = '2HlTHHp3-2QAAAAAAAAAAZD8orXfKnu4Srqe6Us7JrIY_B_NKu0tXb9HWum7CBaE';
 const DROPBOX_ROOT = '13547329251';
 const DROPBOX_FOLDER = '/NORIKS Team Folder/TEJA - KREATIVE/FINAL CREATIVES 🔥';
 
-// Token cache
-let accessToken = null;
-let tokenExpiresAt = 0;
+let DROPBOX_TOKEN = null;
+let tokenExpires = 0;
 
-// Helper: make HTTPS request
-function httpsRequest(options, postData = null) {
+async function getToken() {
+    if (DROPBOX_TOKEN && Date.now() < tokenExpires) return DROPBOX_TOKEN;
+    const data = `grant_type=refresh_token&refresh_token=${DROPBOX_REFRESH_TOKEN}&client_id=${DROPBOX_APP_KEY}&client_secret=${DROPBOX_APP_SECRET}`;
     return new Promise((resolve, reject) => {
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
+        const req = https.request({ hostname: 'api.dropboxapi.com', path: '/oauth2/token', method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': data.length }
+        }, res => {
+            let body = ''; res.on('data', c => body += c);
             res.on('end', () => {
-                try {
-                    resolve({ status: res.statusCode, data: JSON.parse(data) });
-                } catch (e) {
-                    resolve({ status: res.statusCode, data: data });
-                }
+                const j = JSON.parse(body);
+                if (j.access_token) { DROPBOX_TOKEN = j.access_token; tokenExpires = Date.now() + j.expires_in * 1000 - 60000; resolve(DROPBOX_TOKEN); }
+                else reject(new Error('Token refresh failed'));
             });
         });
-        req.on('error', reject);
-        if (postData) req.write(postData);
-        req.end();
+        req.on('error', reject); req.write(data); req.end();
     });
-}
-
-// Get valid access token (auto-refresh if expired)
-async function getAccessToken() {
-    const now = Date.now();
-    
-    // Return cached token if still valid (with 5 min buffer)
-    if (accessToken && tokenExpiresAt > now + 300000) {
-        return accessToken;
-    }
-    
-    console.log('Refreshing Dropbox access token...');
-    
-    const postData = new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: DROPBOX_REFRESH_TOKEN,
-        client_id: DROPBOX_APP_KEY,
-        client_secret: DROPBOX_APP_SECRET
-    }).toString();
-    
-    const options = {
-        hostname: 'api.dropboxapi.com',
-        path: '/oauth2/token',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': Buffer.byteLength(postData)
-        }
-    };
-    
-    const result = await httpsRequest(options, postData);
-    
-    if (result.status !== 200 || !result.data.access_token) {
-        console.error('Token refresh failed:', result.data);
-        throw new Error(`Token refresh failed: ${JSON.stringify(result.data)}`);
-    }
-    
-    accessToken = result.data.access_token;
-    tokenExpiresAt = now + (result.data.expires_in * 1000);
-    
-    console.log('Access token refreshed successfully, expires in', result.data.expires_in, 'seconds');
-    return accessToken;
 }
 
 // Serve static files
@@ -86,97 +41,124 @@ app.use(express.json());
 function extractDateFromFilename(filename) {
     let day, month, year;
     
+    // Pattern 1: ID###_DD-MM-YY_ (primary format)
     let match = filename.match(/ID\d+[_-](\d{2})-(\d{2})-(\d{2})[_-]/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 2: ID###_DD_MM_YY_
     match = filename.match(/ID\d+_(\d{2})_(\d{2})_(\d{2})_/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 3: DD-MM-YYYY
     match = filename.match(/(\d{2})-(\d{2})-(\d{4})/);
-    if (match) { [, day, month, year] = match; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+    }
     
+    // Pattern 4: DD_MM_YYYY
     match = filename.match(/(\d{2})_(\d{2})_(\d{4})/);
-    if (match) { [, day, month, year] = match; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+    }
     
+    // Pattern 5: DD-MM-YY anywhere
     match = filename.match(/(\d{2})-(\d{2})-(\d{2})(?!\d)/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 6: DD_MM_YY anywhere
     match = filename.match(/(\d{2})_(\d{2})_(\d{2})(?!\d)/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 7: DD.MM.YY or DD.MM.YYYY
     match = filename.match(/(\d{2})\.(\d{2})\.(\d{2,4})/);
-    if (match) { [, day, month, year] = match; if (year.length === 2) year = `20${year}`; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        if (year.length === 2) year = `20${year}`;
+        return `${year}-${month}-${day}`;
+    }
     
     return null;
 }
 
-// Creative file extensions
-const CREATIVE_EXTENSIONS = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.wmv', '.flv', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tiff'];
+// Creative file extensions (videos + images)
+const CREATIVE_EXTENSIONS = [
+    '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.wmv', '.flv',  // videos
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tiff'         // images
+];
 
 function isCreativeFile(filename) {
     const ext = path.extname(filename).toLowerCase();
     return CREATIVE_EXTENSIONS.includes(ext);
 }
 
-// Dropbox API call
+// Dropbox API call with team folder access
 async function dropboxListFolder(folderPath, cursor = null) {
-    const token = await getAccessToken();
+    const token = await getToken();
+    const url = cursor 
+        ? 'https://api.dropboxapi.com/2/files/list_folder/continue'
+        : 'https://api.dropboxapi.com/2/files/list_folder';
     
-    const apiPath = cursor ? '/2/files/list_folder/continue' : '/2/files/list_folder';
-    const body = cursor ? { cursor } : { path: folderPath, recursive: true, limit: 2000 };
-    const postData = JSON.stringify(body);
-    
-    const options = {
-        hostname: 'api.dropboxapi.com',
-        path: apiPath,
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData),
-            'Dropbox-API-Path-Root': JSON.stringify({".tag": "root", "root": DROPBOX_ROOT})
-        }
+    const body = cursor 
+        ? { cursor }
+        : { path: folderPath, recursive: true, limit: 2000 };
+
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Dropbox-API-Path-Root': JSON.stringify({".tag": "root", "root": DROPBOX_ROOT})
     };
 
-    const result = await httpsRequest(options, postData);
-    
-    if (result.status === 401) {
-        // Token expired, clear cache and retry
-        console.log('Token expired, refreshing...');
-        accessToken = null;
-        tokenExpiresAt = 0;
-        const newToken = await getAccessToken();
-        
-        options.headers['Authorization'] = `Bearer ${newToken}`;
-        const retryResult = await httpsRequest(options, postData);
-        
-        if (retryResult.status !== 200) {
-            throw new Error(`Dropbox API error (${retryResult.status}): ${JSON.stringify(retryResult.data)}`);
-        }
-        return retryResult.data;
-    }
-    
-    if (result.status !== 200) {
-        throw new Error(`Dropbox API error (${result.status}): ${JSON.stringify(result.data)}`);
+    const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Dropbox API error (${response.status}): ${errorText}`);
     }
 
-    return result.data;
+    return response.json();
 }
 
-// Cache for stats
-let statsCache = null;
-let statsCacheTime = 0;
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+// Extract ID from filename (e.g. ID418_... -> 418)
+function extractId(filename) {
+    const m = filename.match(/ID(\d+)/i);
+    return m ? parseInt(m[1], 10) : null;
+}
 
-// API endpoint
+// Categorize file
+function categorize(filename) {
+    const u = filename.toUpperCase();
+    return {
+        isVideo: u.includes('VIDEO') || u.endsWith('.MP4') || u.endsWith('.MOV'),
+        isSlika: u.includes('IMAGE') || u.endsWith('.PNG') || u.endsWith('.JPG') || u.endsWith('.JPEG'),
+        isMajice: u.includes('SHIRT'),
+        isBokserce: u.includes('BOXER'),
+        isStarter: u.includes('STARTER') || u.includes('PACK'),
+        isNew: u.includes('NEW') && !u.includes('MIX') && !u.includes('PIRAT'),
+        isMix: u.includes('MIX'),
+        isPirat: u.includes('PIRAT')
+    };
+}
+
+// API endpoint to get creative stats
 app.get('/api/stats', async (req, res) => {
-    const forceRefresh = req.query.refresh === 'true';
-    const now = Date.now();
-    
-    if (!forceRefresh && statsCache && (now - statsCacheTime) < CACHE_DURATION) {
-        return res.json({ ...statsCache, cached: true, cacheAge: Math.round((now - statsCacheTime) / 1000) });
-    }
-    
     try {
         let allFiles = [];
         let cursor = null;
@@ -189,19 +171,11 @@ app.get('/api/stats', async (req, res) => {
             cursor = response.cursor;
         }
 
-        const creativeFiles = allFiles.filter(entry => {
-            if (entry['.tag'] !== 'file') return false;
-            if (!isCreativeFile(entry.name)) return false;
-            return true;
-        });
+        const creativeFiles = allFiles.filter(entry => 
+            entry['.tag'] === 'file' && isCreativeFile(entry.name)
+        );
 
-        // Extract ID from filename
-        function extractId(name) {
-            const m = name.match(/ID(\d+)/i);
-            return m ? parseInt(m[1], 10) : null;
-        }
-
-        // Build ID→date map for date inference
+        // Build ID -> date map for date inference
         const idDateMap = {};
         creativeFiles.forEach(f => {
             const id = extractId(f.name);
@@ -209,14 +183,12 @@ app.get('/api/stats', async (req, res) => {
             if (id && date) idDateMap[id] = date;
         });
 
-        // Get date for file (infer from nearest ID ±5 if missing)
-        function getDateForFile(file) {
+        // Get date for file (with inference from nearest ID ±5)
+        function getDate(file) {
             let date = extractDateFromFilename(file.name);
             if (date) return date;
-            
             const id = extractId(file.name);
             if (id) {
-                // Find nearest ID within ±5
                 let closest = null, minDiff = 6;
                 for (const [k, v] of Object.entries(idDateMap)) {
                     const diff = Math.abs(parseInt(k) - id);
@@ -224,136 +196,60 @@ app.get('/api/stats', async (req, res) => {
                 }
                 if (closest) return closest;
             }
-            
-            // Fallback to server_modified
             return file.server_modified ? file.server_modified.split('T')[0] : null;
         }
 
-        // Get category: Main, PIRAT, or MIX
-        function getCreativeType(filename) {
-            const upper = filename.toUpperCase();
-            if (upper.includes('PIRAT')) return 'PIRAT';
-            if (upper.includes('MIX')) return 'MIX';
-            return 'Main';
-        }
-
-        // Categorize files
-        function categorizeFile(filename) {
-            const upper = filename.toUpperCase();
-            const format = { VIDEO: 0, SLIKA: 0 };
-            const products = { MAJICE: 0, BOKSERCE: 0, STARTER: 0 };
-            const version = { NEW: 0, MIX: 0, PIRAT: 0 };
-            
-            // Format (VIDEO / SLIKA)
-            if (upper.includes('VIDEO')) format.VIDEO = 1;
-            else if (upper.includes('IMAGE') || upper.includes('.PNG') || upper.includes('.JPG') || upper.includes('.JPEG')) format.SLIKA = 1;
-            
-            // Product (MAJICE / BOKSERCE / STARTER)
-            if (upper.includes('SHIRT')) products.MAJICE = 1;
-            if (upper.includes('BOXER')) products.BOKSERCE = 1;
-            if (upper.includes('STARTER') || upper.includes('PACK')) products.STARTER = 1;
-            
-            // Version (NEW / MIX / PIRAT)
-            if (upper.includes('PIRAT')) version.PIRAT = 1;
-            else if (upper.includes('MIX')) version.MIX = 1;
-            else if (upper.includes('NEW')) version.NEW = 1;
-            
-            return { format, products, version };
-        }
-
+        // Group by date with unique ID counting and categories
         const dateGroups = {};
-        const dateUniqueIds = {};
-        const dateCategories = {};
-        
+        const totals = { VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, MIX: 0 };
+
         creativeFiles.forEach(file => {
-            const date = getDateForFile(file);
-            if (date) {
-                if (!dateGroups[date]) {
-                    dateGroups[date] = {
-                        files: [],
-                        format: { VIDEO: 0, SLIKA: 0 },
-                        products: { MAJICE: 0, BOKSERCE: 0, STARTER: 0 },
-                        version: { NEW: 0, MIX: 0, PIRAT: 0 }
-                    };
-                    dateUniqueIds[date] = new Set();
-                    dateCategories[date] = { Main: new Set(), PIRAT: new Set(), MIX: new Set() };
-                }
-                dateGroups[date].files.push(file.name);
-                
-                const id = extractId(file.name);
-                if (id) {
-                    dateUniqueIds[date].add(id);
-                    const cat = getCreativeType(file.name);
-                    dateCategories[date][cat].add(id);
-                }
-                
-                const cats = categorizeFile(file.name);
-                dateGroups[date].format.VIDEO += cats.format.VIDEO;
-                dateGroups[date].format.SLIKA += cats.format.SLIKA;
-                dateGroups[date].products.MAJICE += cats.products.MAJICE;
-                dateGroups[date].products.BOKSERCE += cats.products.BOKSERCE;
-                dateGroups[date].products.STARTER += cats.products.STARTER;
-                dateGroups[date].version.NEW += cats.version.NEW;
-                dateGroups[date].version.MIX += cats.version.MIX;
-                dateGroups[date].version.PIRAT += cats.version.PIRAT;
+            const date = getDate(file);
+            if (!date) return;
+            
+            if (!dateGroups[date]) {
+                dateGroups[date] = { ids: new Set(), files: [], VIDEO: 0, SLIKA: 0, MAJICE: 0, BOKSERCE: 0, STARTER: 0, NEW: 0, MIX: 0 };
             }
+            
+            const id = extractId(file.name);
+            if (id) dateGroups[date].ids.add(id);
+            dateGroups[date].files.push(file.name);
+            
+            const cat = categorize(file.name);
+            if (cat.isVideo) { dateGroups[date].VIDEO++; totals.VIDEO++; }
+            if (cat.isSlika) { dateGroups[date].SLIKA++; totals.SLIKA++; }
+            if (cat.isMajice) { dateGroups[date].MAJICE++; totals.MAJICE++; }
+            if (cat.isBokserce) { dateGroups[date].BOKSERCE++; totals.BOKSERCE++; }
+            if (cat.isStarter) { dateGroups[date].STARTER++; totals.STARTER++; }
+            if (cat.isNew) { dateGroups[date].NEW++; totals.NEW++; }
+            if (cat.isMix) { dateGroups[date].MIX++; totals.MIX++; }
         });
-
-        // Calculate totals
-        const totals = {
-            format: { VIDEO: 0, SLIKA: 0 },
-            products: { MAJICE: 0, BOKSERCE: 0, STARTER: 0 },
-            version: { NEW: 0, MIX: 0, PIRAT: 0 }
-        };
-
-        const stats = Object.entries(dateGroups)
-            .map(([date, data]) => {
-                const uniqueCount = dateUniqueIds[date] ? dateUniqueIds[date].size : 0;
-                const cats = dateCategories[date] || { Main: new Set(), PIRAT: new Set(), MIX: new Set() };
-                
-                totals.format.VIDEO += data.format.VIDEO;
-                totals.format.SLIKA += data.format.SLIKA;
-                totals.products.MAJICE += data.products.MAJICE;
-                totals.products.BOKSERCE += data.products.BOKSERCE;
-                totals.products.STARTER += data.products.STARTER;
-                totals.version.NEW += data.version.NEW;
-                totals.version.MIX += data.version.MIX;
-                totals.version.PIRAT += data.version.PIRAT;
-                
-                return {
-                    date,
-                    count: uniqueCount,
-                    success: uniqueCount >= 10,
-                    categories: {
-                        Main: cats.Main.size,
-                        PIRAT: cats.PIRAT.size,
-                        MIX: cats.MIX.size
-                    },
-                    format: data.format,
-                    products: data.products,
-                    version: data.version,
-                    files: data.files
-                };
-            })
-            .sort((a, b) => b.date.localeCompare(a.date));
 
         // Calculate total unique IDs
         const allIds = new Set();
         creativeFiles.forEach(f => { const id = extractId(f.name); if (id) allIds.add(id); });
 
-        const result = {
+        // Build stats array - count = unique IDs
+        const stats = Object.entries(dateGroups)
+            .map(([date, data]) => ({
+                date,
+                count: data.ids.size,
+                success: data.ids.size >= 10,
+                format: { VIDEO: data.VIDEO, SLIKA: data.SLIKA },
+                products: { MAJICE: data.MAJICE, BOKSERCE: data.BOKSERCE, STARTER: data.STARTER },
+                version: { NEW: data.NEW, MIX: data.MIX },
+                files: data.files
+            }))
+            .sort((a, b) => b.date.localeCompare(a.date));
+
+        res.json({
             success: true,
             isDemo: false,
             totalCreatives: allIds.size,
             totalDays: stats.length,
-            totals,
-            stats,
-            lastRefresh: new Date().toISOString()
-        };
-        
-        statsCache = result;
-        statsCacheTime = now;
-        res.json(result);
+            totals: { format: { VIDEO: totals.VIDEO, SLIKA: totals.SLIKA }, products: { MAJICE: totals.MAJICE, BOKSERCE: totals.BOKSERCE, STARTER: totals.STARTER }, version: { NEW: totals.NEW, MIX: totals.MIX } },
+            stats
+        });
 
     } catch (error) {
         console.error('Dropbox error:', error.message);
@@ -361,22 +257,11 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
-app.post('/api/refresh', (req, res) => {
-    statsCache = null;
-    statsCacheTime = 0;
-    res.json({ success: true, message: 'Cache cleared' });
-});
-
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
-        timestamp: new Date().toISOString(),
-        tokenValid: !!(accessToken && tokenExpiresAt > Date.now()),
-        cacheAge: statsCache ? Math.round((Date.now() - statsCacheTime) / 1000) : null
-    });
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
     console.log(`Kreative Checker running on port ${PORT}`);
-    getAccessToken().then(() => console.log('Initial token ready')).catch(err => console.error('Initial token failed:', err.message));
 });
