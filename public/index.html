@@ -7,49 +7,126 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: #0d0f12; 
+            color: #e5e7eb; 
+            min-height: 100vh; 
+            padding: 16px;
+        }
+        .container { max-width: 1280px; margin: 0 auto; }
         
-        /* Top Stats Row */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; }
-        .stat-card .label { font-size: 11px; color: #7d8590; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .stat-card .value { font-size: 32px; font-weight: 700; color: #e6edf3; }
-        .stat-card .value.green { color: #3fb950; }
-        .stat-card .value.red { color: #f85149; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .stat-card {
+            background: #151921;
+            border: 1px solid #252a35;
+            border-radius: 6px;
+            padding: 14px 18px;
+        }
+        .stat-card .label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .stat-card .value.green { color: #22c55e; }
+        .stat-card .value.red { color: #ef4444; }
         
-        /* Category Cards Row */
-        .cat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-        .cat-card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; }
-        .cat-card .title { font-size: 11px; color: #7d8590; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
-        .cat-items { display: flex; gap: 24px; }
-        .cat-item { display: flex; align-items: center; gap: 12px; }
-        .cat-icon { width: 36px; height: 36px; background: #21262d; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .cat-data .num { font-size: 24px; font-weight: 700; color: #e6edf3; }
-        .cat-data .name { font-size: 10px; color: #7d8590; text-transform: uppercase; }
+        .cat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .cat-card {
+            background: #151921;
+            border: 1px solid #252a35;
+            border-radius: 6px;
+            padding: 14px 18px;
+        }
+        .cat-card .title {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+        }
+        .cat-items { display: flex; gap: 20px; }
+        .cat-item { display: flex; align-items: center; gap: 10px; }
+        .cat-icon {
+            width: 34px;
+            height: 34px;
+            background: #1e232c;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .cat-num { font-size: 22px; font-weight: 700; }
+        .cat-name { font-size: 9px; color: #6b7280; text-transform: uppercase; }
         
-        /* Table */
-        .table-card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; }
-        .table-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #30363d; }
-        .table-header h2 { font-size: 14px; font-weight: 600; color: #e6edf3; }
-        .table-header .range { font-size: 12px; color: #7d8590; }
+        .table-card {
+            background: #151921;
+            border: 1px solid #252a35;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            border-bottom: 1px solid #252a35;
+        }
+        .table-header h2 { font-size: 13px; font-weight: 600; }
+        .table-header .range { font-size: 11px; color: #6b7280; }
+        
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 10px 16px; font-size: 11px; color: #7d8590; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid #30363d; }
-        td { padding: 12px 16px; font-size: 13px; color: #e6edf3; border-bottom: 1px solid #21262d; }
-        tr:hover td { background: #1c2128; }
-        .date-cell { font-weight: 500; }
-        .date-cell .day { color: #7d8590; margin-left: 8px; font-weight: 400; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-        .badge.green { background: rgba(63,185,80,0.15); color: #3fb950; }
-        .badge.red { background: rgba(248,81,73,0.15); color: #f85149; }
-        .status { font-weight: 500; }
-        .status.green { color: #3fb950; }
-        .status.red { color: #f85149; }
-        tr.weekend td { opacity: 0.4; }
-        .loading { text-align: center; padding: 60px; color: #7d8590; }
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            border-bottom: 1px solid #252a35;
+        }
+        td {
+            padding: 10px 14px;
+            font-size: 12px;
+            border-bottom: 1px solid #1e232c;
+        }
+        tr:hover td { background: #1a1e26; }
         
-        @media (max-width: 1000px) { .stats-row, .cat-row { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .stats-row, .cat-row { grid-template-columns: 1fr; } }
+        .date-cell .day { color: #6b7280; margin-left: 6px; }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge.green { background: rgba(34,197,94,0.12); color: #22c55e; }
+        .badge.red { background: rgba(239,68,68,0.12); color: #ef4444; }
+        
+        .status.green { color: #22c55e; }
+        .status.red { color: #ef4444; }
+        
+        tr.weekend td { opacity: 0.35; }
+        
+        .loading { text-align: center; padding: 60px; color: #6b7280; }
     </style>
 </head>
 <body>
@@ -59,27 +136,20 @@
 <script>
 const DAYS = ['Ned','Pon','Tor','Sre','Čet','Pet','Sob'];
 
-function fmtDate(d) { const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; }
-function dayName(d) { return DAYS[new Date(d).getDay()]; }
-function isWeekend(d) { const day = new Date(d).getDay(); return day === 0 || day === 6; }
-
 async function load() {
     try {
         const r = await fetch('/kreative-checker/api/stats');
         const data = await r.json();
         if (!data.success) throw new Error(data.error);
         
+        const isWeekend = d => [0,6].includes(new Date(d).getDay());
         let successDays = 0, kiksDays = 0;
-        data.stats.forEach(s => { 
-            if (!isWeekend(s.date)) { 
-                if (s.success) successDays++; 
-                else kiksDays++; 
-            } 
-        });
+        data.stats.forEach(s => { if (!isWeekend(s.date)) s.success ? successDays++ : kiksDays++; });
         
-        const t = data.totals || { format: {}, products: {}, version: {} };
+        const t = data.totals || {};
+        const fmt = d => { const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
         
-        let html = `
+        document.getElementById('app').innerHTML = `
         <div class="stats-row">
             <div class="stat-card"><div class="label">Total Kreativ</div><div class="value">${data.totalCreatives}</div></div>
             <div class="stat-card"><div class="label">Success Dni</div><div class="value green">${successDays}</div></div>
@@ -90,23 +160,23 @@ async function load() {
             <div class="cat-card">
                 <div class="title">Video / Slika</div>
                 <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">🎬</div><div class="cat-data"><div class="num">${t.format?.VIDEO||0}</div><div class="name">Video</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">📷</div><div class="cat-data"><div class="num">${t.format?.SLIKA||0}</div><div class="name">Slika</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🎬</div><div><div class="cat-num">${t.format?.VIDEO||0}</div><div class="cat-name">Video</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">📷</div><div><div class="cat-num">${t.format?.SLIKA||0}</div><div class="cat-name">Slika</div></div></div>
                 </div>
             </div>
             <div class="cat-card">
                 <div class="title">Majice / Bokserce / Starter</div>
                 <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">👕</div><div class="cat-data"><div class="num">${t.products?.MAJICE||0}</div><div class="name">Majice</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🩳</div><div class="cat-data"><div class="num">${t.products?.BOKSERCE||0}</div><div class="name">Bokserce</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🎁</div><div class="cat-data"><div class="num">${t.products?.STARTER||0}</div><div class="name">Starter</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">👕</div><div><div class="cat-num">${t.products?.MAJICE||0}</div><div class="cat-name">Majice</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🩳</div><div><div class="cat-num">${t.products?.BOKSERCE||0}</div><div class="cat-name">Bokserce</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🎁</div><div><div class="cat-num">${t.products?.STARTER||0}</div><div class="cat-name">Starter</div></div></div>
                 </div>
             </div>
             <div class="cat-card">
                 <div class="title">New / Mix</div>
                 <div class="cat-items">
-                    <div class="cat-item"><div class="cat-icon">✨</div><div class="cat-data"><div class="num">${t.version?.NEW||0}</div><div class="name">New</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🔀</div><div class="cat-data"><div class="num">${t.version?.MIX||0}</div><div class="name">Mix</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">✨</div><div><div class="cat-num">${t.version?.NEW||0}</div><div class="cat-name">New</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🔀</div><div><div class="cat-num">${t.version?.MIX||0}</div><div class="cat-name">Mix</div></div></div>
                 </div>
             </div>
         </div>
@@ -117,43 +187,28 @@ async function load() {
             </div>
             <table>
                 <thead><tr>
-                    <th>Datum</th>
-                    <th>Kreativ</th>
-                    <th>🎬 Video</th>
-                    <th>📷 Slika</th>
-                    <th>👕 Majice</th>
-                    <th>🩳 Bokserce</th>
-                    <th>🎁 Starter</th>
-                    <th>✨ New</th>
-                    <th>🔀 Mix</th>
-                    <th>Status</th>
+                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🔀 Mix</th><th>Status</th>
                 </tr></thead>
-                <tbody>`;
-        
-        data.stats.forEach(s => {
-            const we = isWeekend(s.date);
-            const badge = s.success ? 'green' : 'red';
-            const status = s.success 
-                ? '<span class="status green">✓ Success</span>' 
-                : '<span class="status red">✗ Kiks</span>';
-            html += `<tr class="${we ? 'weekend' : ''}">
-                <td class="date-cell">${fmtDate(s.date)}<span class="day">${dayName(s.date)}</span></td>
-                <td><span class="badge ${badge}">${s.count}/10</span></td>
-                <td>${s.format?.VIDEO||0}</td>
-                <td>${s.format?.SLIKA||0}</td>
-                <td>${s.products?.MAJICE||0}</td>
-                <td>${s.products?.BOKSERCE||0}</td>
-                <td>${s.products?.STARTER||0}</td>
-                <td>${s.version?.NEW||0}</td>
-                <td>${s.version?.MIX||0}</td>
-                <td>${status}</td>
-            </tr>`;
-        });
-        
-        html += '</tbody></table></div>';
-        document.getElementById('app').innerHTML = html;
+                <tbody>${data.stats.map(s => {
+                    const we = isWeekend(s.date);
+                    const day = DAYS[new Date(s.date).getDay()];
+                    return `<tr class="${we?'weekend':''}">
+                        <td class="date-cell">${fmt(s.date)}<span class="day">${day}</span></td>
+                        <td><span class="badge ${s.success?'green':'red'}">${s.count}/10</span></td>
+                        <td>${s.format?.VIDEO||0}</td>
+                        <td>${s.format?.SLIKA||0}</td>
+                        <td>${s.products?.MAJICE||0}</td>
+                        <td>${s.products?.BOKSERCE||0}</td>
+                        <td>${s.products?.STARTER||0}</td>
+                        <td>${s.version?.NEW||0}</td>
+                        <td>${s.version?.MIX||0}</td>
+                        <td><span class="status ${s.success?'green':'red'}">${s.success?'✓ Success':'✗ Kiks'}</span></td>
+                    </tr>`;
+                }).join('')}</tbody>
+            </table>
+        </div>`;
     } catch(e) {
-        document.getElementById('app').innerHTML = `<div class="loading" style="color:#f85149">Napaka: ${e.message}</div>`;
+        document.getElementById('app').innerHTML = `<div class="loading" style="color:#ef4444">Napaka: ${e.message}</div>`;
     }
 }
 load();
