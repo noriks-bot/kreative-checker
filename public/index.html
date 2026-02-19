@@ -184,11 +184,11 @@ async function load() {
                 </div>
             </div>
             <div class="cat-card">
-                <div class="title">New / Pirat / Mix</div>
+                <div class="title">New / Mix / Pirat</div>
                 <div class="cat-items">
                     <div class="cat-item"><div class="cat-icon">✨</div><div><div class="cat-num">${t.version?.NEW||0}</div><div class="cat-name">New</div></div></div>
-                    <div class="cat-item"><div class="cat-icon">🏴‍☠️</div><div><div class="cat-num">${t.version?.PIRAT||0}</div><div class="cat-name">Pirat</div></div></div>
                     <div class="cat-item"><div class="cat-icon">🔀</div><div><div class="cat-num">${t.version?.MIX||0}</div><div class="cat-name">Mix</div></div></div>
+                    <div class="cat-item"><div class="cat-icon">🏴‍☠️</div><div><div class="cat-num">${t.version?.PIRAT||0}</div><div class="cat-name">Pirat</div></div></div>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@ async function load() {
             </div>
             <table>
                 <thead><tr>
-                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🏴‍☠️ Pirat</th><th>🔀 Mix</th><th>Status</th>
+                    <th>Datum</th><th>Kreativ</th><th>🎬 Video</th><th>📷 Slika</th><th>👕 Majice</th><th>🩳 Bokserce</th><th>🎁 Starter</th><th>✨ New</th><th>🔀 Mix</th><th>🏴‍☠️ Pirat</th><th>Status</th>
                 </tr></thead>
                 <tbody>${data.stats.map(s => {
                     const we = isWeekend(s.date);
@@ -218,8 +218,8 @@ async function load() {
                         <td>${we?'—':(s.products?.BOKSERCE||0)}</td>
                         <td>${we?'—':(s.products?.STARTER||0)}</td>
                         <td>${we?'—':(s.version?.NEW||0)}</td>
-                        <td>${we?'—':(s.version?.PIRAT||0)}</td>
                         <td>${we?'—':(s.version?.MIX||0)}</td>
+                        <td>${we?'—':(s.version?.PIRAT||0)}</td>
                         <td><span class="status ${badgeClass}">${statusText}</span></td>
                     </tr>`;
                 }).join('')}</tbody>
