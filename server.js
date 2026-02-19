@@ -242,7 +242,7 @@ app.get('/api/stats', async (req, res) => {
                 version: { NEW: data.NEW, PIRAT: data.PIRAT, MIX: data.MIX },
                 files: data.files
             }))
-            .sort((a, b) => b.date.localeCompare(a.date));
+            .sort((a, b) => a.date.localeCompare(b.date));
 
         res.json({
             success: true,
