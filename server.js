@@ -86,39 +86,71 @@ app.use(express.json());
 function extractDateFromFilename(filename) {
     let day, month, year;
     
+    // Pattern 1: ID###_DD-MM-YY_ (primary format)
     let match = filename.match(/ID\d+[_-](\d{2})-(\d{2})-(\d{2})[_-]/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 2: ID###_DD_MM_YY_
     match = filename.match(/ID\d+_(\d{2})_(\d{2})_(\d{2})_/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 3: DD-MM-YYYY
     match = filename.match(/(\d{2})-(\d{2})-(\d{4})/);
-    if (match) { [, day, month, year] = match; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+    }
     
+    // Pattern 4: DD_MM_YYYY
     match = filename.match(/(\d{2})_(\d{2})_(\d{4})/);
-    if (match) { [, day, month, year] = match; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+    }
     
+    // Pattern 5: DD-MM-YY anywhere
     match = filename.match(/(\d{2})-(\d{2})-(\d{2})(?!\d)/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 6: DD_MM_YY anywhere
     match = filename.match(/(\d{2})_(\d{2})_(\d{2})(?!\d)/);
-    if (match) { [, day, month, year] = match; return `20${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        return `20${year}-${month}-${day}`;
+    }
     
+    // Pattern 7: DD.MM.YY or DD.MM.YYYY
     match = filename.match(/(\d{2})\.(\d{2})\.(\d{2,4})/);
-    if (match) { [, day, month, year] = match; if (year.length === 2) year = `20${year}`; return `${year}-${month}-${day}`; }
+    if (match) {
+        [, day, month, year] = match;
+        if (year.length === 2) year = `20${year}`;
+        return `${year}-${month}-${day}`;
+    }
     
     return null;
 }
 
-// Creative file extensions
-const CREATIVE_EXTENSIONS = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.wmv', '.flv', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tiff'];
+// Creative file extensions (videos + images)
+const CREATIVE_EXTENSIONS = [
+    '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.wmv', '.flv',  // videos
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tiff'         // images
+];
 
 function isCreativeFile(filename) {
     const ext = path.extname(filename).toLowerCase();
     return CREATIVE_EXTENSIONS.includes(ext);
 }
 
-// Dropbox API call
+// Dropbox API call with team folder access
 async function dropboxListFolder(folderPath, cursor = null) {
     const token = await getAccessToken();
     
@@ -163,25 +195,14 @@ async function dropboxListFolder(folderPath, cursor = null) {
     return result.data;
 }
 
-// Cache for stats
-let statsCache = null;
-let statsCacheTime = 0;
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
-
-// API endpoint
+// API endpoint to get creative stats
 app.get('/api/stats', async (req, res) => {
-    const forceRefresh = req.query.refresh === 'true';
-    const now = Date.now();
-    
-    if (!forceRefresh && statsCache && (now - statsCacheTime) < CACHE_DURATION) {
-        return res.json({ ...statsCache, cached: true, cacheAge: Math.round((now - statsCacheTime) / 1000) });
-    }
-    
     try {
         let allFiles = [];
         let cursor = null;
         let hasMore = true;
 
+        // Fetch all files from Dropbox (handle pagination)
         while (hasMore) {
             const response = await dropboxListFolder(DROPBOX_FOLDER, cursor);
             allFiles = allFiles.concat(response.entries);
@@ -189,129 +210,133 @@ app.get('/api/stats', async (req, res) => {
             cursor = response.cursor;
         }
 
-        const creativeFiles = allFiles.filter(entry => {
-            if (entry['.tag'] !== 'file') return false;
-            if (!isCreativeFile(entry.name)) return false;
-            // Exclude files with TRANS in name
-            if (entry.name.toUpperCase().includes('TRANS')) return false;
-            // Exclude files in TRANSLATED_CREATIVES folder
-            if (entry.path_display && entry.path_display.toUpperCase().includes('TRANSLATED_CREATIVES')) return false;
-            return true;
-        });
+        // Filter creative files (videos + images), exclude 'translated' in name
+        const creativeFiles = allFiles.filter(entry => 
+            entry['.tag'] === 'file' && 
+            isCreativeFile(entry.name) &&
+            !entry.name.toLowerCase().includes('translated')
+        );
 
-        // Categorize files
-        function categorizeFile(filename) {
-            const upper = filename.toUpperCase();
-            const format = { VIDEO: 0, SLIKA: 0 };
-            const products = { MAJICE: 0, BOKSERCE: 0, STARTER: 0 };
-            const version = { NEW: 0, MIX: 0 };
-            
-            // Format (VIDEO / SLIKA)
-            if (upper.includes('VIDEO')) format.VIDEO = 1;
-            else if (upper.includes('IMAGE') || upper.includes('.PNG') || upper.includes('.JPG') || upper.includes('.JPEG')) format.SLIKA = 1;
-            
-            // Product (MAJICE / BOKSERCE / STARTER)
-            if (upper.includes('SHIRT')) products.MAJICE = 1;
-            if (upper.includes('BOXER')) products.BOKSERCE = 1;
-            if (upper.includes('STARTER') || upper.includes('PACK')) products.STARTER = 1;
-            
-            // Version (NEW / MIX)
-            if (upper.includes('MIX')) version.MIX = 1;
-            else if (upper.includes('NEW')) version.NEW = 1;
-            
-            return { format, products, version };
+        // Extract ID from filename (e.g., ID418_... -> 418)
+        function extractId(filename) {
+            const match = filename.match(/ID(\d+)/i);
+            return match ? parseInt(match[1], 10) : null;
         }
 
-        const dateGroups = {};
+        // Build ID → date map from files that have dates
+        const idDateMap = {};
         creativeFiles.forEach(file => {
+            const id = extractId(file.name);
             const date = extractDateFromFilename(file.name);
-            if (date) {
-                if (!dateGroups[date]) {
-                    dateGroups[date] = {
-                        files: [],
-                        format: { VIDEO: 0, SLIKA: 0 },
-                        products: { MAJICE: 0, BOKSERCE: 0, STARTER: 0 },
-                        version: { NEW: 0, MIX: 0 }
-                    };
-                }
-                dateGroups[date].files.push(file.name);
-                
-                const cats = categorizeFile(file.name);
-                dateGroups[date].format.VIDEO += cats.format.VIDEO;
-                dateGroups[date].format.SLIKA += cats.format.SLIKA;
-                dateGroups[date].products.MAJICE += cats.products.MAJICE;
-                dateGroups[date].products.BOKSERCE += cats.products.BOKSERCE;
-                dateGroups[date].products.STARTER += cats.products.STARTER;
-                dateGroups[date].version.NEW += cats.version.NEW;
-                dateGroups[date].version.MIX += cats.version.MIX;
+            if (id && date) {
+                idDateMap[id] = date;
             }
         });
 
-        // Calculate totals
-        const totals = {
-            format: { VIDEO: 0, SLIKA: 0 },
-            products: { MAJICE: 0, BOKSERCE: 0, STARTER: 0 },
-            version: { NEW: 0, MIX: 0 }
-        };
+        // Find date for file: use filename date, or infer from nearest ID (±5)
+        function getDateForFile(file) {
+            // First try direct date extraction
+            const directDate = extractDateFromFilename(file.name);
+            if (directDate) return directDate;
 
-        const stats = Object.entries(dateGroups)
-            .map(([date, data]) => {
-                totals.format.VIDEO += data.format.VIDEO;
-                totals.format.SLIKA += data.format.SLIKA;
-                totals.products.MAJICE += data.products.MAJICE;
-                totals.products.BOKSERCE += data.products.BOKSERCE;
-                totals.products.STARTER += data.products.STARTER;
-                totals.version.NEW += data.version.NEW;
-                totals.version.MIX += data.version.MIX;
+            // No date in filename - find nearest ID that has a date
+            const fileId = extractId(file.name);
+            if (!fileId) {
+                // Fallback to server_modified date
+                if (file.server_modified) {
+                    return file.server_modified.split('T')[0];
+                }
+                return null;
+            }
+
+            // Check IDs ±5 nearby
+            const idsWithDates = Object.keys(idDateMap).map(Number);
+            let closestId = null;
+            let minDiff = Infinity;
+            for (const id of idsWithDates) {
+                const diff = Math.abs(id - fileId);
+                if (diff <= 5 && diff < minDiff) {
+                    minDiff = diff;
+                    closestId = id;
+                }
+            }
+
+            if (closestId) return idDateMap[closestId];
+            
+            // Fallback to server_modified
+            if (file.server_modified) {
+                return file.server_modified.split('T')[0];
+            }
+            return null;
+        }
+
+        // Group by date with UNIQUE ID counting
+        const dateGroups = {};
+        const dateUniqueIds = {}; // Track unique IDs per date
+        
+        creativeFiles.forEach(file => {
+            const date = getDateForFile(file);
+            if (date) {
+                if (!dateGroups[date]) {
+                    dateGroups[date] = [];
+                    dateUniqueIds[date] = new Set();
+                }
+                dateGroups[date].push(file.name);
                 
+                // Track unique IDs (ID418_SK and ID418_HR count as 1)
+                const id = extractId(file.name);
+                if (id) {
+                    dateUniqueIds[date].add(id);
+                }
+            }
+        });
+
+        // Convert to array and sort by date descending
+        // Use UNIQUE ID count for success check (10 unique creatives per day)
+        const stats = Object.entries(dateGroups)
+            .map(([date, files]) => {
+                const uniqueCount = dateUniqueIds[date] ? dateUniqueIds[date].size : 0;
                 return {
                     date,
-                    count: data.files.length,
-                    success: data.files.length >= 10,
-                    format: data.format,
-                    products: data.products,
-                    version: data.version,
-                    files: data.files
+                    count: uniqueCount,  // Unique ID count
+                    fileCount: files.length,  // Raw file count
+                    success: uniqueCount >= 10,
+                    files: files,
+                    uniqueIds: dateUniqueIds[date] ? Array.from(dateUniqueIds[date]).sort((a,b) => a-b) : []
                 };
             })
             .sort((a, b) => b.date.localeCompare(a.date));
 
-        const result = {
+        // Calculate total unique IDs
+        const allUniqueIds = new Set();
+        creativeFiles.forEach(file => {
+            const id = extractId(file.name);
+            if (id) allUniqueIds.add(id);
+        });
+
+        res.json({
             success: true,
             isDemo: false,
-            totalCreatives: creativeFiles.length,
+            totalCreatives: allUniqueIds.size,  // Unique creative count
+            totalFiles: creativeFiles.length,   // Raw file count
             totalDays: stats.length,
-            totals,
-            stats,
-            lastRefresh: new Date().toISOString()
-        };
-        
-        statsCache = result;
-        statsCacheTime = now;
-        res.json(result);
+            stats
+        });
 
     } catch (error) {
         console.error('Dropbox error:', error.message);
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
-app.post('/api/refresh', (req, res) => {
-    statsCache = null;
-    statsCacheTime = 0;
-    res.json({ success: true, message: 'Cache cleared' });
-});
-
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
-        timestamp: new Date().toISOString(),
-        tokenValid: !!(accessToken && tokenExpiresAt > Date.now()),
-        cacheAge: statsCache ? Math.round((Date.now() - statsCacheTime) / 1000) : null
-    });
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
     console.log(`Kreative Checker running on port ${PORT}`);
-    getAccessToken().then(() => console.log('Initial token ready')).catch(err => console.error('Initial token failed:', err.message));
 });
