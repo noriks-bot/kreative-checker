@@ -1,601 +1,583 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kreative Checker 🎬</title>
+    <title>Kreative Checker | NORIKS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --bg: #0f1117;
+            --bg-card: #181b23;
+            --bg-hover: #1f232d;
+            --border: #2a2f3a;
+            --text: #f4f4f5;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --orange: #f97316;
         }
-
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 40px 20px;
-            color: #fff;
+            line-height: 1.5;
         }
-
+        
         .container {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 24px 32px;
         }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #ff6b6b, #feca57);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            color: #888;
-            font-size: 1.1rem;
-        }
-
-        .demo-banner {
-            background: linear-gradient(90deg, #f39c12, #e74c3c);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .stats-summary {
+        
+        /* Header */
+        .header {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            font-size: 20px;
         }
-
-        .stat-box {
-            background: rgba(255,255,255,0.1);
-            padding: 20px 40px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 120px;
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
         }
-
-        .stat-box .number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #feca57;
+        
+        .logo p {
+            font-size: 13px;
+            color: var(--text-muted);
         }
-
-        .stat-box .label {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-top: 5px;
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .table-container {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--green-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+        
+        .btn {
+            padding: 9px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: #3f4555;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .stat-card.success {
+            border-left: 3px solid var(--green);
+        }
+        
+        .stat-card.fail {
+            border-left: 3px solid var(--red);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .stat-card.success .stat-value { color: var(--green); }
+        .stat-card.fail .stat-value { color: var(--red); }
+        
+        /* Breakdown */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .breakdown-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .breakdown-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .breakdown-items {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .breakdown-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .breakdown-data strong {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .breakdown-data span {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Table */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-height: 70vh;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .table-header span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .table-scroll {
+            max-height: 55vh;
             overflow-y: auto;
         }
-
+        
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
+        
         thead {
             position: sticky;
             top: 0;
             z-index: 10;
         }
-
-        th, td {
-            padding: 16px 20px;
-            text-align: left;
-        }
-
+        
         th {
-            background: rgba(30, 30, 50, 0.95);
+            background: #14171f;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
             font-weight: 600;
+            color: var(--text-muted);
             text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            color: #aaa;
-        }
-
-        tr:not(:last-child) td {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        tr:hover td {
-            background: rgba(255,255,255,0.05);
-        }
-
-        tr.future td {
-            opacity: 0.5;
-        }
-
-        tr.today td {
-            background: rgba(254, 202, 87, 0.1);
-        }
-
-        tr.weekend td {
-            opacity: 0.4;
-            background: rgba(100, 100, 100, 0.1);
-        }
-
-        tr.weekend .status {
-            color: #666 !important;
-        }
-
-        .date {
-            font-weight: 500;
-        }
-
-        .count {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .status {
-            font-size: 1.2rem;
-        }
-
-        .status.success {
-            color: #2ecc71;
-        }
-
-        .status.fail {
-            color: #e74c3c;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: #888;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #feca57;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: rgba(231, 76, 60, 0.2);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            color: #e74c3c;
-        }
-
-        .goal-indicator {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .goal-indicator.met {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-        }
-
-        .goal-indicator.missed {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-        }
-
-        .goal-indicator.pending {
-            background: rgba(255, 255, 255, 0.1);
-            color: #888;
-        }
-
-        .categories {
-            display: block;
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .refresh-btn {
-            background: linear-gradient(90deg, #ff6b6b, #feca57);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            color: #1a1a2e;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(254, 202, 87, 0.4);
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .day-name {
-            color: #888;
-            font-size: 0.85rem;
-            margin-left: 8px;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 24px 16px;
-            }
-            
-            header {
-                margin-bottom: 24px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .stats-summary {
-                gap: 12px;
-            }
-            
-            .stat-box {
-                padding: 16px 24px;
-                min-width: 100px;
-            }
-            
-            .stat-box .number {
-                font-size: 1.6rem;
-            }
-            
-            .table-container {
-                border-radius: 12px;
-            }
-            
-            th, td {
-                padding: 12px 14px;
-            }
-            
-            th {
-                font-size: 0.75rem;
-            }
-            
-            .count {
-                font-size: 1rem;
-            }
-            
-            .status {
-                font-size: 1.1rem;
-            }
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
         }
         
-        @media (max-width: 480px) {
-            body {
-                padding: 16px 12px;
-            }
-            
-            h1 {
-                font-size: 1.6rem;
-            }
-            
-            .subtitle {
-                font-size: 0.9rem;
-            }
-            
-            .stats-summary {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .stat-box {
-                width: 100%;
-                max-width: 200px;
-                padding: 14px 20px;
-            }
-            
-            .stat-box .number {
-                font-size: 1.4rem;
-            }
-            
-            .stat-box .label {
-                font-size: 0.8rem;
-            }
-            
-            th, td {
-                padding: 10px 8px;
-                font-size: 0.85rem;
-            }
-            
-            th {
-                font-size: 0.7rem;
-                letter-spacing: 0.5px;
-            }
-            
-            .date {
-                font-size: 0.85rem;
-            }
-            
-            .day-name {
-                display: block;
-                margin-left: 0;
-                margin-top: 2px;
-                font-size: 0.75rem;
-            }
-            
-            .goal-indicator {
-                padding: 3px 8px;
-                font-size: 0.75rem;
-            }
-            
-            .refresh-btn {
-                width: 100%;
-                max-width: 200px;
-                padding: 10px 24px;
-            }
-            
-            footer {
-                margin-top: 24px;
-                font-size: 0.8rem;
-            }
+        td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        tr.today td {
+            background: rgba(59, 130, 246, 0.08);
+        }
+        
+        tr.future td {
+            opacity: 0.35;
+        }
+        
+        .date-cell {
+            font-weight: 500;
+        }
+        
+        .day-label {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.success {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        
+        .badge.fail {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+        
+        .badge.pending {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+        }
+        
+        .data-cell {
+            color: var(--text-secondary);
+        }
+        
+        .status-cell {
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .status-cell.success { color: var(--green); }
+        .status-cell.fail { color: var(--red); }
+        .status-cell.pending { color: var(--text-muted); }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .breakdown-grid { grid-template-columns: 1fr; }
+            .container { padding: 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🎬 Kreative Checker</h1>
-            <p class="subtitle">Daily Video Production Tracker</p>
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <div>
+                    <h1>Kreative Checker</h1>
+                    <p>NORIKS Produkcija</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    Povezano
+                </div>
+                <button class="btn" onclick="loadStats(true)">↻ Osveži</button>
+            </div>
         </header>
-
-        <div id="content">
+        
+        <main id="content">
             <div class="loading">
                 <div class="spinner"></div>
-                <p>Loading data from Dropbox...</p>
+                <p>Nalagam...</p>
             </div>
-        </div>
-
-        <footer>
-            <button class="refresh-btn" onclick="loadStats()">🔄 Refresh</button>
-            <p style="margin-top: 20px;">NORIKS Kreative Team · Goal: 10 videos/day</p>
+        </main>
+        
+        <footer class="footer">
+            Cilj: 10 kreativ na dan · Osveži se vsako uro
         </footer>
     </div>
-
+    
     <script>
-        const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const DAYS = ['Ned', 'Pon', 'Tor', 'Sre', 'Čet', 'Pet', 'Sob'];
+        const START_DATE = '2026-02-09';
 
-        function formatDate(isoDate) {
-            const [year, month, day] = isoDate.split('-');
-            const date = new Date(isoDate);
-            const dayName = DAYS[date.getDay()];
-            return { formatted: `${day}/${month}/${year}`, dayName };
+        function fmt(d) {
+            const [y,m,day] = d.split('-');
+            return { date: `${day}.${m}.${y}`, day: DAYS[new Date(d).getDay()] };
         }
 
-        function getAllDatesFromTodayToEndOfYear() {
-            const dates = [];
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            // Start from today
-            const endOfYear = new Date('2026-12-31');
-            
-            const current = new Date(today);
-            while (current <= endOfYear) {
-                const year = current.getFullYear();
-                const month = String(current.getMonth() + 1).padStart(2, '0');
-                const day = String(current.getDate()).padStart(2, '0');
-                dates.push(`${year}-${month}-${day}`);
-                current.setDate(current.getDate() + 1);
-            }
-            
-            return dates;
+        function dates() {
+            const r = [], s = new Date(START_DATE), e = new Date('2026-12-31');
+            for (let d = new Date(s); d <= e; d.setDate(d.getDate()+1)) r.push(d.toISOString().split('T')[0]);
+            return r;
         }
 
-        async function loadStats() {
-            const content = document.getElementById('content');
-            content.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Loading data from Dropbox...</p>
-                </div>
-            `;
+        async function loadStats(refresh = false) {
+            const c = document.getElementById('content');
+            c.innerHTML = '<div class="loading"><div class="spinner"></div><p>Nalagam...</p></div>';
 
             try {
-                const response = await fetch('api/stats');
-                const data = await response.json();
+                const res = await fetch(refresh ? 'api/stats?refresh=true' : 'api/stats');
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
 
-                if (!data.success) {
-                    throw new Error(data.error);
-                }
-
-                // Create a map of existing stats by date
-                const statsMap = {};
-                data.stats.forEach(s => {
-                    statsMap[s.date] = s;
-                });
-
-                // Get all dates from today to end of year
-                const allDates = getAllDatesFromTodayToEndOfYear();
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayStr = today.toISOString().split('T')[0];
-
-                // Build full stats with all dates (today onwards)
-                const fullStats = allDates.map(date => {
-                    const isToday = date === todayStr;
-                    const isFuture = date > todayStr;
-                    
-                    if (statsMap[date]) {
-                        return { ...statsMap[date], isFuture, isToday };
-                    }
-                    return {
-                        date,
-                        count: 0,
-                        success: false,
-                        isFuture,
-                        isToday
-                    };
-                });
-
-                // Calculate stats from API data (all time, excluding weekends)
-                let successDays = data.stats.filter(s => {
-                    const d = new Date(s.date);
-                    const dow = d.getDay();
-                    return s.success && dow !== 0 && dow !== 6;
-                }).length;
-                let failDays = data.stats.filter(s => {
-                    const d = new Date(s.date);
-                    const dow = d.getDay();
-                    return !s.success && dow !== 0 && dow !== 6;
-                }).length;
-
-                let html = '';
+                const map = Object.fromEntries(data.stats.map(s => [s.date, s]));
+                const today = new Date().toISOString().split('T')[0];
                 
-                // Show demo banner if in demo mode
-                if (data.isDemo) {
-                    html += `
-                        <div class="demo-banner">
-                            ⚠️ DEMO MODE - Dropbox token expired. Showing sample data.
-                        </div>
-                    `;
-                }
+                const all = dates().map(d => ({
+                    date: d,
+                    isToday: d === today,
+                    isFuture: d > today,
+                    ...(map[d] || { count: 0, success: false, types: {}, products: {} })
+                }));
 
-                html += `
-                    <div class="stats-summary">
-                        <div class="stat-box">
-                            <div class="number">${data.totalCreatives || data.totalVideos || 0}</div>
-                            <div class="label">Total Creatives</div>
+                const past = all.filter(s => !s.isFuture);
+                const succ = past.filter(s => s.success).length;
+                const fail = past.filter(s => !s.success).length;
+                const total = past.reduce((a, s) => a + s.count, 0);
+                const t = data.totals || { types: {}, products: {} };
+
+                c.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Kreativ</div>
+                            <div class="stat-value">${total}</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="number">${successDays}</div>
-                            <div class="label">Days ✅</div>
+                        <div class="stat-card success">
+                            <div class="stat-label">Success Dni</div>
+                            <div class="stat-value">${succ}</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="number">${failDays}</div>
-                            <div class="label">Days ❌</div>
+                        <div class="stat-card fail">
+                            <div class="stat-label">Kiks Dni</div>
+                            <div class="stat-value">${fail}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Skupaj Dni</div>
+                            <div class="stat-value">${past.length}</div>
                         </div>
                     </div>
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Videos</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                fullStats.forEach(day => {
-                    const { formatted, dayName } = formatDate(day.date);
-                    const dateObj = new Date(day.date);
-                    const dayOfWeek = dateObj.getDay();
-                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
                     
-                    let rowClass = '';
-                    let statusEmoji = '';
-                    let goalClass = '';
-                    let goalText = '';
-
-                    if (isWeekend) {
-                        // Weekend - gray out, no success/fail
-                        rowClass = 'weekend';
-                        statusEmoji = '—';
-                        goalClass = 'pending';
-                        goalText = '—';
-                    } else if (day.isFuture) {
-                        // Future dates - pending
-                        rowClass = 'future';
-                        statusEmoji = '⏳';
-                        goalClass = 'pending';
-                        goalText = '-/10';
-                    } else if (day.isToday) {
-                        // Today - show "V teku" (in progress)
-                        rowClass = 'today';
-                        statusEmoji = '⏳ V teku';
-                        goalClass = day.count >= 10 ? 'met' : 'pending';
-                        goalText = `${day.count}/10`;
-                    } else {
-                        // Past - show actual result
-                        statusEmoji = day.success ? '✅ SUCCESS' : '❌ KIKS';
-                        goalClass = day.success ? 'met' : 'missed';
-                        goalText = `${day.count}/10`;
-                    }
-
-                    // Category breakdown
-                    let catText = '';
-                    if (day.categories && !day.isFuture && !isWeekend) {
-                        const parts = [];
-                        if (day.categories.Main > 0) parts.push(`Main: ${day.categories.Main}`);
-                        if (day.categories.PIRAT > 0) parts.push(`PIRAT: ${day.categories.PIRAT}`);
-                        if (day.categories.MIX > 0) parts.push(`MIX: ${day.categories.MIX}`);
-                        catText = parts.length ? `<span class="categories">${parts.join(' · ')}</span>` : '';
-                    }
-
-                    html += `
-                        <tr class="${rowClass}">
-                            <td class="date">${formatted}<span class="day-name">${dayName}</span></td>
-                            <td>
-                                <span class="goal-indicator ${goalClass}">${goalText}</span>
-                                ${catText}
-                            </td>
-                            <td class="status">${statusEmoji}</td>
-                        </tr>
-                    `;
-                });
-
-                html += `
-                            </tbody>
-                        </table>
+                    <div class="breakdown-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">VIDEO / SLIKA</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🎬</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.format?.VIDEO || 0}</strong>
+                                        <span>Video</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">📸</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.format?.SLIKA || 0}</strong>
+                                        <span>Slika</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">MAJICE / BOKSERCE / STARTER</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">👕</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.MAJICE || 0}</strong>
+                                        <span>Majice</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🩲</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.BOKSERCE || 0}</strong>
+                                        <span>Bokserce</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">📦</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.products?.STARTER || 0}</strong>
+                                        <span>Starter</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="breakdown-card">
+                            <div class="breakdown-title">NEW / MIX</div>
+                            <div class="breakdown-items">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">✨</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.version?.NEW || 0}</strong>
+                                        <span>New</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-icon">🔀</div>
+                                    <div class="breakdown-data">
+                                        <strong>${t.version?.MIX || 0}</strong>
+                                        <span>Mix</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2>Dnevni Pregled</h2>
+                            <span>09.02.2026 → 31.12.2026</span>
+                        </div>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th>Kreativ</th>
+                                        <th>🎬 Video</th>
+                                        <th>📸 Slika</th>
+                                        <th>👕 Majice</th>
+                                        <th>🩲 Bokserce</th>
+                                        <th>📦 Starter</th>
+                                        <th>✨ New</th>
+                                        <th>🔀 Mix</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${all.map(d => {
+                                        const f = fmt(d.date);
+                                        const cls = d.isFuture ? 'future' : '';
+                                        const fm = d.format || {}, pr = d.products || {}, vr = d.version || {};
+                                        const badge = d.isFuture ? 'pending' : (d.success ? 'success' : 'fail');
+                                        const status = d.isFuture ? '⏳ Čakamo' : (d.success ? '✓ Success' : '✗ Kiks');
+                                        return `<tr class="${cls}">
+                                            <td class="date-cell">${f.date}<span class="day-label">${f.day}</span></td>
+                                            <td><span class="badge ${badge}">${d.isFuture ? '—' : d.count+'/10'}</span></td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (fm.VIDEO||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (fm.SLIKA||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.MAJICE||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.BOKSERCE||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (pr.STARTER||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (vr.NEW||0)}</td>
+                                            <td class="data-cell">${d.isFuture ? '—' : (vr.MIX||0)}</td>
+                                            <td class="status-cell ${badge}">${status}</td>
+                                        </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
 
-                content.innerHTML = html;
-
-            } catch (error) {
-                content.innerHTML = `
-                    <div class="error">
-                        <p>❌ Error loading data: ${error.message}</p>
-                        <p style="margin-top: 10px; font-size: 0.9rem;">Please try refreshing</p>
-                    </div>
-                `;
+            } catch (err) {
+                c.innerHTML = `<div class="loading"><p style="color:var(--red);">Napaka: ${err.message}</p><br><button class="btn" onclick="loadStats(true)">Poskusi znova</button></div>`;
             }
         }
 
-        // Load on page load
         loadStats();
     </script>
 </body>
