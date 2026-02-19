@@ -212,6 +212,13 @@
             color: #888;
         }
 
+        .categories {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
         .refresh-btn {
             background: linear-gradient(90deg, #ff6b6b, #feca57);
             border: none;
@@ -535,15 +542,27 @@
                         statusEmoji = '⏳';
                         goalClass = 'pending';
                         goalText = '-/10';
+                    } else if (day.isToday) {
+                        // Today - show "V teku" (in progress)
+                        rowClass = 'today';
+                        statusEmoji = '⏳ V teku';
+                        goalClass = day.count >= 10 ? 'met' : 'pending';
+                        goalText = `${day.count}/10`;
                     } else {
-                        // Today or past - show actual data
+                        // Past - show actual result
                         statusEmoji = day.success ? '✅ SUCCESS' : '❌ KIKS';
                         goalClass = day.success ? 'met' : 'missed';
                         goalText = `${day.count}/10`;
                     }
 
-                    if (day.isToday && !isWeekend) {
-                        rowClass = 'today';
+                    // Category breakdown
+                    let catText = '';
+                    if (day.categories && !day.isFuture && !isWeekend) {
+                        const parts = [];
+                        if (day.categories.Main > 0) parts.push(`Main: ${day.categories.Main}`);
+                        if (day.categories.PIRAT > 0) parts.push(`PIRAT: ${day.categories.PIRAT}`);
+                        if (day.categories.MIX > 0) parts.push(`MIX: ${day.categories.MIX}`);
+                        catText = parts.length ? `<span class="categories">${parts.join(' · ')}</span>` : '';
                     }
 
                     html += `
@@ -551,6 +570,7 @@
                             <td class="date">${formatted}<span class="day-name">${dayName}</span></td>
                             <td>
                                 <span class="goal-indicator ${goalClass}">${goalText}</span>
+                                ${catText}
                             </td>
                             <td class="status">${statusEmoji}</td>
                         </tr>

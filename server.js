@@ -5,7 +5,7 @@ const https = require('https');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Dropbox OAuth config
+// Dropbox OAuth config (auto-refresh token)
 const DROPBOX_APP_KEY = 'h7gx1yglwenhrz2';
 const DROPBOX_APP_SECRET = '3n4ebxqlqfehwkr';
 const DROPBOX_REFRESH_TOKEN = '2HlTHHp3-2QAAAAAAAAAAZD8orXfKnu4Srqe6Us7JrIY_B_NKu0tXb9HWum7CBaE';
@@ -13,40 +13,11 @@ const DROPBOX_ROOT = '13547329251';
 const DROPBOX_FOLDER = '/NORIKS Team Folder/TEJA - KREATIVE/FINAL CREATIVES 🔥';
 
 // Token cache
-let accessToken = null;
+let DROPBOX_TOKEN = null;
 let tokenExpiresAt = 0;
 
-// Helper: make HTTPS request
-function httpsRequest(options, postData = null) {
-    return new Promise((resolve, reject) => {
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try {
-                    resolve({ status: res.statusCode, data: JSON.parse(data) });
-                } catch (e) {
-                    resolve({ status: res.statusCode, data: data });
-                }
-            });
-        });
-        req.on('error', reject);
-        if (postData) req.write(postData);
-        req.end();
-    });
-}
-
-// Get valid access token (auto-refresh if expired)
-async function getAccessToken() {
-    const now = Date.now();
-    
-    // Return cached token if still valid (with 5 min buffer)
-    if (accessToken && tokenExpiresAt > now + 300000) {
-        return accessToken;
-    }
-    
-    console.log('Refreshing Dropbox access token...');
-    
+// Refresh access token
+async function refreshToken() {
     const postData = new URLSearchParams({
         grant_type: 'refresh_token',
         refresh_token: DROPBOX_REFRESH_TOKEN,
@@ -54,28 +25,43 @@ async function getAccessToken() {
         client_secret: DROPBOX_APP_SECRET
     }).toString();
     
-    const options = {
-        hostname: 'api.dropboxapi.com',
-        path: '/oauth2/token',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': Buffer.byteLength(postData)
-        }
-    };
-    
-    const result = await httpsRequest(options, postData);
-    
-    if (result.status !== 200 || !result.data.access_token) {
-        console.error('Token refresh failed:', result.data);
-        throw new Error(`Token refresh failed: ${JSON.stringify(result.data)}`);
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.dropboxapi.com',
+            path: '/oauth2/token',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(postData)
+            }
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    if (json.access_token) {
+                        DROPBOX_TOKEN = json.access_token;
+                        tokenExpiresAt = Date.now() + (json.expires_in * 1000) - 300000;
+                        console.log('Token refreshed, expires in', json.expires_in, 'seconds');
+                        resolve(DROPBOX_TOKEN);
+                    } else {
+                        reject(new Error('No access_token in response'));
+                    }
+                } catch (e) { reject(e); }
+            });
+        });
+        req.on('error', reject);
+        req.write(postData);
+        req.end();
+    });
+}
+
+async function getToken() {
+    if (!DROPBOX_TOKEN || Date.now() > tokenExpiresAt) {
+        await refreshToken();
     }
-    
-    accessToken = result.data.access_token;
-    tokenExpiresAt = now + (result.data.expires_in * 1000);
-    
-    console.log('Access token refreshed successfully, expires in', result.data.expires_in, 'seconds');
-    return accessToken;
+    return DROPBOX_TOKEN;
 }
 
 // Serve static files
@@ -152,47 +138,34 @@ function isCreativeFile(filename) {
 
 // Dropbox API call with team folder access
 async function dropboxListFolder(folderPath, cursor = null) {
-    const token = await getAccessToken();
+    const token = await getToken();
     
-    const apiPath = cursor ? '/2/files/list_folder/continue' : '/2/files/list_folder';
-    const body = cursor ? { cursor } : { path: folderPath, recursive: true, limit: 2000 };
-    const postData = JSON.stringify(body);
+    const url = cursor 
+        ? 'https://api.dropboxapi.com/2/files/list_folder/continue'
+        : 'https://api.dropboxapi.com/2/files/list_folder';
     
-    const options = {
-        hostname: 'api.dropboxapi.com',
-        path: apiPath,
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData),
-            'Dropbox-API-Path-Root': JSON.stringify({".tag": "root", "root": DROPBOX_ROOT})
-        }
+    const body = cursor 
+        ? { cursor }
+        : { path: folderPath, recursive: true, limit: 2000 };
+
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Dropbox-API-Path-Root': JSON.stringify({".tag": "root", "root": DROPBOX_ROOT})
     };
 
-    const result = await httpsRequest(options, postData);
-    
-    if (result.status === 401) {
-        // Token expired, clear cache and retry
-        console.log('Token expired, refreshing...');
-        accessToken = null;
-        tokenExpiresAt = 0;
-        const newToken = await getAccessToken();
-        
-        options.headers['Authorization'] = `Bearer ${newToken}`;
-        const retryResult = await httpsRequest(options, postData);
-        
-        if (retryResult.status !== 200) {
-            throw new Error(`Dropbox API error (${retryResult.status}): ${JSON.stringify(retryResult.data)}`);
-        }
-        return retryResult.data;
-    }
-    
-    if (result.status !== 200) {
-        throw new Error(`Dropbox API error (${result.status}): ${JSON.stringify(result.data)}`);
+    const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Dropbox API error (${response.status}): ${errorText}`);
     }
 
-    return result.data;
+    return response.json();
 }
 
 // API endpoint to get creative stats
@@ -210,115 +183,99 @@ app.get('/api/stats', async (req, res) => {
             cursor = response.cursor;
         }
 
-        // Filter creative files (videos + images), exclude 'translated' in name
+        // Filter creative files, exclude 'translated'
         const creativeFiles = allFiles.filter(entry => 
             entry['.tag'] === 'file' && 
             isCreativeFile(entry.name) &&
             !entry.name.toLowerCase().includes('translated')
         );
 
-        // Extract ID from filename (e.g., ID418_... -> 418)
-        function extractId(filename) {
-            const match = filename.match(/ID(\d+)/i);
-            return match ? parseInt(match[1], 10) : null;
+        // Extract ID from filename
+        function extractId(name) {
+            const m = name.match(/ID(\d+)/i);
+            return m ? parseInt(m[1], 10) : null;
         }
 
-        // Build ID → date map from files that have dates
+        // Build ID→date map
         const idDateMap = {};
-        creativeFiles.forEach(file => {
-            const id = extractId(file.name);
-            const date = extractDateFromFilename(file.name);
-            if (id && date) {
-                idDateMap[id] = date;
-            }
+        creativeFiles.forEach(f => {
+            const id = extractId(f.name);
+            const date = extractDateFromFilename(f.name);
+            if (id && date) idDateMap[id] = date;
         });
 
-        // Find date for file: use filename date, or infer from nearest ID (±5)
-        function getDateForFile(file) {
-            // First try direct date extraction
-            const directDate = extractDateFromFilename(file.name);
-            if (directDate) return directDate;
-
-            // No date in filename - find nearest ID that has a date
-            const fileId = extractId(file.name);
-            if (!fileId) {
-                // Fallback to server_modified date
-                if (file.server_modified) {
-                    return file.server_modified.split('T')[0];
-                }
-                return null;
-            }
-
-            // Check IDs ±5 nearby
-            const idsWithDates = Object.keys(idDateMap).map(Number);
-            let closestId = null;
-            let minDiff = Infinity;
-            for (const id of idsWithDates) {
-                const diff = Math.abs(id - fileId);
-                if (diff <= 5 && diff < minDiff) {
-                    minDiff = diff;
-                    closestId = id;
-                }
-            }
-
-            if (closestId) return idDateMap[closestId];
+        // Get date for file (infer from nearest ID ±5 if missing)
+        function getDate(file) {
+            let date = extractDateFromFilename(file.name);
+            if (date) return date;
             
-            // Fallback to server_modified
-            if (file.server_modified) {
-                return file.server_modified.split('T')[0];
+            const id = extractId(file.name);
+            if (!id) return file.server_modified ? file.server_modified.split('T')[0] : null;
+            
+            // Find nearest ID within ±5
+            let closest = null, minDiff = 6;
+            for (const [k, v] of Object.entries(idDateMap)) {
+                const diff = Math.abs(parseInt(k) - id);
+                if (diff < minDiff) { minDiff = diff; closest = v; }
             }
-            return null;
+            return closest || (file.server_modified ? file.server_modified.split('T')[0] : null);
         }
 
-        // Group by date with UNIQUE ID counting
+        // Categorize file: PIRAT, MIX, or Main
+        function getCategory(name) {
+            const upper = name.toUpperCase();
+            if (upper.includes('PIRAT')) return 'PIRAT';
+            if (upper.includes('MIX')) return 'MIX';
+            return 'Main';
+        }
+
+        // Group by date, track unique IDs per category
         const dateGroups = {};
-        const dateUniqueIds = {}; // Track unique IDs per date
+        const dateIds = {};
+        const dateCategories = {}; // {date: {Main: Set, PIRAT: Set, MIX: Set}}
         
         creativeFiles.forEach(file => {
-            const date = getDateForFile(file);
-            if (date) {
-                if (!dateGroups[date]) {
-                    dateGroups[date] = [];
-                    dateUniqueIds[date] = new Set();
-                }
-                dateGroups[date].push(file.name);
-                
-                // Track unique IDs (ID418_SK and ID418_HR count as 1)
-                const id = extractId(file.name);
-                if (id) {
-                    dateUniqueIds[date].add(id);
-                }
+            const date = getDate(file);
+            if (!date) return;
+            if (!dateGroups[date]) { 
+                dateGroups[date] = []; 
+                dateIds[date] = new Set();
+                dateCategories[date] = { Main: new Set(), PIRAT: new Set(), MIX: new Set() };
+            }
+            dateGroups[date].push(file.name);
+            const id = extractId(file.name);
+            if (id) {
+                dateIds[date].add(id);
+                const cat = getCategory(file.name);
+                dateCategories[date][cat].add(id);
             }
         });
 
-        // Convert to array and sort by date descending
-        // Use UNIQUE ID count for success check (10 unique creatives per day)
+        // Stats: count = unique IDs, include categories
         const stats = Object.entries(dateGroups)
             .map(([date, files]) => {
-                const uniqueCount = dateUniqueIds[date] ? dateUniqueIds[date].size : 0;
+                const cats = dateCategories[date] || { Main: new Set(), PIRAT: new Set(), MIX: new Set() };
                 return {
                     date,
-                    count: uniqueCount,  // Unique ID count
-                    fileCount: files.length,  // Raw file count
-                    success: uniqueCount >= 10,
-                    files: files,
-                    uniqueIds: dateUniqueIds[date] ? Array.from(dateUniqueIds[date]).sort((a,b) => a-b) : []
+                    count: dateIds[date] ? dateIds[date].size : files.length,
+                    success: (dateIds[date] ? dateIds[date].size : files.length) >= 10,
+                    categories: {
+                        Main: cats.Main.size,
+                        PIRAT: cats.PIRAT.size,
+                        MIX: cats.MIX.size
+                    },
+                    files
                 };
             })
             .sort((a, b) => b.date.localeCompare(a.date));
 
-        // Calculate total unique IDs
-        const allUniqueIds = new Set();
-        creativeFiles.forEach(file => {
-            const id = extractId(file.name);
-            if (id) allUniqueIds.add(id);
-        });
+        const allIds = new Set();
+        creativeFiles.forEach(f => { const id = extractId(f.name); if (id) allIds.add(id); });
 
         res.json({
             success: true,
             isDemo: false,
-            totalCreatives: allUniqueIds.size,  // Unique creative count
-            totalFiles: creativeFiles.length,   // Raw file count
+            totalCreatives: allIds.size,
             totalDays: stats.length,
             stats
         });
